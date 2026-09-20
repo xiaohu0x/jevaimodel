@@ -20,10 +20,32 @@ function matchContent(html: string, pattern: RegExp, label: string): string {
 
 function visibleText(html: string): string {
   return html
+    .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
     .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/<[^>]+>/g, '')
+    .replace(/&[a-z0-9#]+;/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+function indexableText(html: string): string {
+  return html
+    .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z0-9#]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function characterCount(value: string): number {
+  return [...value].length
+}
+
+function englishWordCount(value: string): number {
+  return value.match(/[A-Za-z0-9]+(?:['’-][A-Za-z0-9]+)*/g)?.length ?? 0
 }
 
 for (const pathname of PRERENDER_PATHS) {
@@ -87,6 +109,15 @@ test('localized home pages have unique TDH and reciprocal hreflang links', async
     assert.equal(seo.title, copy.title)
     assert.equal(seo.description, copy.description)
     assert.equal(seo.h1, copy.h1)
+    assert.ok(copy.title.startsWith('JEV AI Model'), `${locale.code} title must lead with brand keyword`)
+    assert.match(copy.description, /JEV AI Model/i)
+    assert.match(copy.h1, /JEV AI Model/i)
+    assert.ok(characterCount(copy.title) <= 60, `${locale.code} title exceeds 60 characters`)
+    assert.ok(
+      characterCount(copy.description) <= 160,
+      `${locale.code} description exceeds 160 characters`,
+    )
+    assert.ok(characterCount(copy.h1) <= 80, `${locale.code} H1 exceeds 80 characters`)
     assert.match(html, new RegExp(`<link rel="canonical" href="${absoluteUrl(pathname)}"`))
 
     for (const alternate of LOCALES) {
@@ -110,6 +141,23 @@ test('localized home pages have unique TDH and reciprocal hreflang links', async
   assert.equal(titles.size, LOCALES.length)
   assert.equal(descriptions.size, LOCALES.length)
   assert.equal(headings.size, LOCALES.length)
+})
+
+test('English home meets on-page copy length and keyword targets', async () => {
+  const seo = getPageSeo('/')
+  const html = await readFile(outputFile('/'), 'utf8')
+  const body = matchContent(html, /<body>([\s\S]*?)<\/body>/, 'body')
+  const text = indexableText(body)
+  const words = englishWordCount(text)
+  const brandMentions = text.match(/\bJEV AI Model\b/gi)?.length ?? 0
+
+  assert.ok(words >= 1200, `English home has ${words} words; expected at least 1200`)
+  assert.ok(words <= 1800, `English home has ${words} words; expected at most 1800`)
+  assert.ok(brandMentions >= 5, `English home has only ${brandMentions} brand mentions`)
+  assert.ok(brandMentions <= 15, `English home has ${brandMentions} brand mentions; avoid stuffing`)
+  assert.ok(seo.title.startsWith('JEV AI Model'))
+  assert.match(seo.description, /JEV AI Model/i)
+  assert.match(seo.h1 ?? '', /JEV AI Model/i)
 })
 
 test('sitemap and robots expose only intentional crawl targets', async () => {
