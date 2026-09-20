@@ -11,6 +11,8 @@ import { cn } from '@/lib/utils'
 import TypeBadge from '@/sections/TypeBadge'
 import NextSteps from '@/sections/NextSteps'
 import { TYPE_BAR } from '@/lib/type-style'
+import { formatMessage } from '@/lib/locale'
+import { useLocale } from '@/lib/useLocale'
 
 interface OutputPanelProps {
   runs: RunRecord[]
@@ -29,6 +31,7 @@ export default function OutputPanel({
   onAddQuestion,
   onFocusContext,
 }: OutputPanelProps) {
+  const { copy } = useLocale()
   const latest = runs[runs.length - 1]
   if (!running && !latest) return null
 
@@ -40,10 +43,11 @@ export default function OutputPanel({
         <>
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
             <span className="font-mono text-[11px] font-medium tracking-[0.14em] text-zinc-400 uppercase">
-              Result
+              {copy.output.result}
             </span>
             <span className="text-[14px] text-zinc-400">
-              {latest.results.length} {latest.results.length === 1 ? 'answer' : 'answers'} ·{' '}
+              {latest.results.length}{' '}
+              {latest.results.length === 1 ? copy.output.answer : copy.output.answers} ·{' '}
               {(latest.totalLatencyMs / 1000).toFixed(2)}s ·{' '}
               <span className="font-mono text-[12.5px]">{latest.model}</span>
               {latest.usage?.input_tokens ? (
@@ -108,6 +112,7 @@ function AnswerBody({ answer }: { answer: Answer }) {
  * tell. Showing it as True/False would throw away exactly that information.
  */
 function NoulBody({ a }: { a: NoulAnswer }) {
+  const { copy } = useLocale()
   const pct = Math.round(a.noul * 100)
   const leaning = a.noul >= 0.65 ? 'yes' : a.noul <= 0.35 ? 'no' : 'uncertain'
   const tone =
@@ -129,7 +134,11 @@ function NoulBody({ a }: { a: NoulAnswer }) {
           {a.noul.toFixed(2)}
         </span>
         <span className="pb-1.5 text-[14px] text-zinc-500">
-          {leaning === 'yes' ? 'likely true' : leaning === 'no' ? 'likely false' : 'genuinely unsure'}
+          {leaning === 'yes'
+            ? copy.output.likelyTrue
+            : leaning === 'no'
+              ? copy.output.likelyFalse
+              : copy.output.unsure}
         </span>
       </div>
 
@@ -143,9 +152,9 @@ function NoulBody({ a }: { a: NoulAnswer }) {
         <span aria-hidden className="absolute left-1/2 h-2 w-px bg-white/70" />
       </div>
       <div className="mt-1.5 flex justify-between font-mono text-[10px] tracking-[0.1em] text-zinc-400 uppercase">
-        <span>No · 0</span>
-        <span>Unsure · .5</span>
-        <span>Yes · 1</span>
+        <span>{copy.output.no} · 0</span>
+        <span>{copy.output.unsure} · .5</span>
+        <span>{copy.output.yes} · 1</span>
       </div>
     </div>
   )
@@ -154,6 +163,7 @@ function NoulBody({ a }: { a: NoulAnswer }) {
 /* ---------------------------------------------------------------- */
 
 function ChoiceBody({ a }: { a: ChoiceAnswer }) {
+  const { copy } = useLocale()
   const entries = Object.entries(a.probabilities).sort((x, y) => y[1] - x[1])
 
   return (
@@ -164,7 +174,7 @@ function ChoiceBody({ a }: { a: ChoiceAnswer }) {
             {a.choice}
           </span>
           <p className="mt-2 font-mono text-[10px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
-            Choice
+            {copy.output.choice}
           </p>
         </div>
         <ConfidencePill value={a.confidence} />
@@ -182,6 +192,7 @@ function ChoiceBody({ a }: { a: ChoiceAnswer }) {
 /* ---------------------------------------------------------------- */
 
 function ScoreBody({ a }: { a: ScoreAnswer }) {
+  const { copy } = useLocale()
   const keys = Object.keys(a.legend).sort((x, y) => Number(x) - Number(y))
   const top = keys.length - 1
   const nearest = String(Math.round(a.score))
@@ -195,7 +206,9 @@ function ScoreBody({ a }: { a: ScoreAnswer }) {
           </span>
           <span className="ml-1 font-display text-[22px] text-zinc-400">/ {top}</span>
           <p className="mt-2 font-mono text-[10px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
-            {a.legend[nearest] ? `Closest to “${a.legend[nearest]}”` : 'Score'}
+            {a.legend[nearest]
+              ? formatMessage(copy.output.closest, { label: a.legend[nearest] })
+              : copy.output.score}
           </p>
         </div>
         <ConfidencePill value={a.confidence} />
@@ -219,6 +232,7 @@ function ScoreBody({ a }: { a: ScoreAnswer }) {
 /* ---------------------------------------------------------------- */
 
 function ConfidencePill({ value }: { value: number }) {
+  const { copy } = useLocale()
   const pct = Math.round(value * 100)
   const low = value < 0.5
   return (
@@ -233,7 +247,8 @@ function ConfidencePill({ value }: { value: number }) {
         <span className="text-[16px] text-zinc-400">%</span>
       </span>
       <p className="mt-2 font-mono text-[10px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
-        Confidence{low ? ' · low' : ''}
+        {copy.output.confidence}
+        {low ? ` · ${copy.output.low}` : ''}
       </p>
     </div>
   )
@@ -274,6 +289,7 @@ function ProbRow({
 }
 
 function Thinking({ count }: { count: number }) {
+  const { copy } = useLocale()
   return (
     <div className="flex items-center gap-3 text-[15px] text-zinc-400">
       <span className="flex gap-1.5">
@@ -285,7 +301,9 @@ function Thinking({ count }: { count: number }) {
           />
         ))}
       </span>
-      Asking Jev {count} {count === 1 ? 'question' : 'questions'}…
+      {formatMessage(copy.output.askingQuestions, {
+        count,
+      })}
     </div>
   )
 }

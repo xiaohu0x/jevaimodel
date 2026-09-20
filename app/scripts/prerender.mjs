@@ -33,16 +33,22 @@ function renderSeoHead(seo, pathname) {
   const jsonLd = seo.structuredData
     ? `\n    <script id="seo-json-ld" type="application/ld+json">${JSON.stringify(seo.structuredData).replaceAll('<', '\\u003c')}</script>`
     : ''
+  const alternates = (seo.alternates ?? [])
+    .map(
+      ({ hrefLang, href }) =>
+        `\n    <link rel="alternate" hreflang="${escapeHtml(hrefLang)}" href="${escapeHtml(href)}" />`,
+    )
+    .join('')
 
   return `<!-- seo-head-start -->
     <title>${escapeHtml(seo.title)}</title>
     <meta name="description" content="${escapeHtml(seo.description)}" />
-    ${canonical ? `<link rel="canonical" href="${escapeHtml(canonical)}" />` : ''}
+    ${canonical ? `<link rel="canonical" href="${escapeHtml(canonical)}" />` : ''}${alternates}
     <link rel="privacy-policy" href="${SITE_ORIGIN}/privacy" />
     <meta name="robots" content="${robots}" />
     <meta property="og:type" content="${seo.ogType ?? 'website'}" />
     <meta property="og:site_name" content="JEV AI Model" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content="${escapeHtml(seo.ogLocale)}" />
     <meta property="og:title" content="${escapeHtml(seo.title)}" />
     <meta property="og:description" content="${escapeHtml(seo.description)}" />
     <meta property="og:url" content="${escapeHtml(pageUrl)}" />
@@ -67,7 +73,8 @@ function buildPage(pathname) {
     /<!-- seo-head-start -->[\s\S]*?<!-- seo-head-end -->/,
     renderSeoHead(seo, pathname),
   )
-  const html = withHead.replace('<div id="root"></div>', `<div id="root">${app}</div>`)
+  const withLanguage = withHead.replace(/<html lang="[^"]*">/, `<html lang="${escapeHtml(seo.language)}">`)
+  const html = withLanguage.replace('<div id="root"></div>', `<div id="root">${app}</div>`)
 
   if (html === template || !html.includes(app)) {
     throw new Error(`Failed to prerender ${pathname}`)

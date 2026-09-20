@@ -9,7 +9,20 @@
 const PAGES_HOST = 'jev-ai-model-cpn.pages.dev'
 const CANONICAL_HOST = 'jevaimodel.app'
 const WWW_HOST = `www.${CANONICAL_HOST}`
-const CANONICAL_PATHS = new Set(['/docs', '/examples', '/privacy', '/terms', '/use-cases'])
+const CANONICAL_PATHS = new Set([
+  '/docs',
+  '/examples',
+  '/privacy',
+  '/terms',
+  '/use-cases',
+  '/zh-cn',
+  '/es',
+  '/ja',
+  '/ko',
+  '/fr',
+  '/de',
+  '/pt-br',
+])
 
 const SECURITY_HEADERS = {
   'Content-Security-Policy': [

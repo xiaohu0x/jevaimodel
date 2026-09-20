@@ -1,15 +1,19 @@
 import { BrandMark } from '@/sections/Illustrations'
 import { Link } from 'react-router'
-
-const LINKS = [
-  { href: '#playground', label: 'Open the playground' },
-  { href: '/docs', label: 'Documentation' },
-  { href: '/use-cases', label: 'Use cases' },
-  { href: '/examples', label: 'Examples' },
-  { href: '#faq', label: 'FAQ' },
-]
+import { localeHomePath } from '@/lib/locale'
+import { useLocale } from '@/lib/useLocale'
 
 export default function Footer() {
+  const { locale, copy } = useLocale()
+  const home = localeHomePath(locale)
+  const links = [
+    { href: `${home}#playground`, label: copy.footer.open },
+    { href: '/docs', label: copy.footer.docs },
+    { href: '/use-cases', label: copy.footer.useCases },
+    { href: '/examples', label: copy.footer.examples },
+    { href: `${home}#faq`, label: copy.footer.faq },
+  ]
+
   return (
     <footer className="mt-16 border-t border-zinc-200 bg-white/60">
       <div className="mx-auto w-full max-w-[820px] px-4 py-10 sm:px-6">
@@ -22,16 +26,14 @@ export default function Footer() {
               </span>
             </div>
             <p className="mt-3 text-[12.5px] leading-relaxed text-zinc-500">
-              A free online AI classifier playground. JEV AI Model turns JSON context into typed
-              answers — likelihoods, ratings, and choices — with a calibrated confidence value
-              for every result.
+              {copy.footer.description}
             </p>
           </div>
 
           <nav aria-label="Footer">
-            <div className="eyebrow">PLAYGROUND</div>
+            <div className="eyebrow">{copy.footer.section}</div>
             <ul className="mt-3 space-y-2">
-              {LINKS.map((l) => (
+              {links.map((l) => (
                 <li key={l.href}>
                   <a
                     href={l.href}
@@ -48,17 +50,17 @@ export default function Footer() {
         <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11.5px] text-zinc-400">
           <span>© {new Date().getFullYear()} JEV AI Model · jevaimodel.app</span>
           <Link to="/privacy" className="transition-colors hover:text-zinc-700">
-            Privacy
+            {copy.footer.privacy}
           </Link>
           <Link to="/terms" className="transition-colors hover:text-zinc-700">
-            Terms
+            {copy.footer.terms}
           </Link>
           <a
             href="https://github.com/xiaohu0x/jevaimodel"
             rel="noreferrer"
             className="transition-colors hover:text-zinc-700"
           >
-            Source
+            {copy.footer.source}
           </a>
         </div>
       </div>

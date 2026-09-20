@@ -1,27 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://jevaimodel.app/</loc>
-    <lastmod>2026-09-20</lastmod>
+    <lastmod>2026-09-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jevaimodel.app/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://jevaimodel.app/zh-cn" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://jevaimodel.app/es" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://jevaimodel.app/ja" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://jevaimodel.app/ko" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://jevaimodel.app/fr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://jevaimodel.app/de" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://jevaimodel.app/pt-br" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jevaimodel.app/" />
   </url>
   <url>
-    <loc>https://jevaimodel.app/docs</loc>
-    <lastmod>2026-09-20</lastmod>
+    <loc>https://jevaimodel.app/zh-cn</loc>
+    <lastmod>2026-09-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jevaimodel.app/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://jevaimodel.app/zh-cn" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://jevaimodel.app/es" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://jevaimodel.app/ja" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://jevaimodel.app/ko" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://jevaimodel.app/fr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://jevaimodel.app/de" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://jevaimodel.app/pt-br" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jevaimodel.app/" />
   </url>
   <url>
-    <loc>https://jevaimodel.app/use-cases</loc>
-    <lastmod>2026-09-20</lastmod>
+    <loc>https://jevaimodel.app/es</loc>
+    <lastmod>2026-09-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jevaimodel.app/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://jevaimodel.app/zh-cn" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://jevaimodel.app/es" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://jevaimodel.app/ja" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://jevaimodel.app/ko" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://jevaimodel.app/fr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://jevaimodel.app/de" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://jevaimodel.app/pt-br" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jevaimodel.app/" />
   </url>
   <url>
-    <loc>https://jevaimodel.app/examples</loc>
-    <lastmod>2026-09-20</lastmod>
+    <loc>https://jevaimodel.app/ja</loc>
+    <lastmod>2026-09-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jevaimodel.app/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://jevaimodel.app/zh-cn" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://jevaimodel.app/es" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://jevaimodel.app/ja" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://jevaimodel.app/ko" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://jevaimodel.app/fr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://jevaimodel.app/de" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://jevaimodel.app/pt-br" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jevaimodel.app/" />
   </url>
   <url>
-    <loc>https://jevaimodel.app/privacy</loc>
-    <lastmod>2026-09-20</lastmod>
+    <loc>https://jevaimodel.app/ko</loc>
+    <lastmod>2026-09-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jevaimodel.app/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://jevaimodel.app/zh-cn" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://jevaimodel.app/es" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://jevaimodel.app/ja" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://jevaimodel.app/ko" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://jevaimodel.app/fr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://jevaimodel.app/de" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://jevaimodel.app/pt-br" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jevaimodel.app/" />
   </url>
   <url>
-    <loc>https://jevaimodel.app/terms</loc>
-    <lastmod>2026-09-20</lastmod>
+    <loc>https://jevaimodel.app/fr</loc>
+    <lastmod>2026-09-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jevaimodel.app/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://jevaimodel.app/zh-cn" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://jevaimodel.app/es" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://jevaimodel.app/ja" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://jevaimodel.app/ko" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://jevaimodel.app/fr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://jevaimodel.app/de" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://jevaimodel.app/pt-br" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jevaimodel.app/" />
   </url>
+  <url>
+    <loc>https://jevaimodel.app/de</loc>
+    <lastmod>2026-09-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jevaimodel.app/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://jevaimodel.app/zh-cn" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://jevaimodel.app/es" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://jevaimodel.app/ja" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://jevaimodel.app/ko" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://jevaimodel.app/fr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://jevaimodel.app/de" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://jevaimodel.app/pt-br" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jevaimodel.app/" />
+  </url>
+  <url>
+    <loc>https://jevaimodel.app/pt-br</loc>
+    <lastmod>2026-09-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://jevaimodel.app/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://jevaimodel.app/zh-cn" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://jevaimodel.app/es" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://jevaimodel.app/ja" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://jevaimodel.app/ko" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://jevaimodel.app/fr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://jevaimodel.app/de" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://jevaimodel.app/pt-br" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jevaimodel.app/" />
+  </url>
+  <url><loc>https://jevaimodel.app/docs</loc><lastmod>2026-09-21</lastmod></url>
+  <url><loc>https://jevaimodel.app/use-cases</loc><lastmod>2026-09-21</lastmod></url>
+  <url><loc>https://jevaimodel.app/examples</loc><lastmod>2026-09-21</lastmod></url>
+  <url><loc>https://jevaimodel.app/privacy</loc><lastmod>2026-09-21</lastmod></url>
+  <url><loc>https://jevaimodel.app/terms</loc><lastmod>2026-09-21</lastmod></url>
 </urlset>

@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import { Link } from 'react-router'
+import { useLocale } from '@/lib/useLocale'
 import { BrandMark } from '@/sections/Illustrations'
 
 interface LoginDialogProps {
@@ -9,6 +10,7 @@ interface LoginDialogProps {
 }
 
 export default function LoginDialog({ open, onClose, onGoogle }: LoginDialogProps) {
+  const { copy } = useLocale()
   if (!open) return null
 
   return (
@@ -17,6 +19,7 @@ export default function LoginDialog({ open, onClose, onGoogle }: LoginDialogProp
       <div className="rise-in relative w-full max-w-[380px] rounded-t-2xl border border-zinc-200 bg-white p-7 shadow-xl shadow-zinc-900/10 sm:rounded-2xl">
         <button
           onClick={onClose}
+          aria-label={copy.login.close}
           className="absolute top-4 right-4 rounded-md p-1 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
         >
           <X className="h-4 w-4" strokeWidth={2} />
@@ -25,10 +28,10 @@ export default function LoginDialog({ open, onClose, onGoogle }: LoginDialogProp
         <BrandMark className="h-9 w-9" />
 
         <h2 className="mt-4 font-display text-[22px] leading-snug font-medium text-zinc-900">
-          Sign in to keep going
+          {copy.login.title}
         </h2>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-zinc-500">
-          Continue with your Google account for 30 playground runs each day.
+          {copy.login.body}
         </p>
 
         <button
@@ -36,21 +39,21 @@ export default function LoginDialog({ open, onClose, onGoogle }: LoginDialogProp
           className="mt-6 flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-zinc-300 bg-white text-[13.5px] font-semibold text-zinc-800 transition-colors hover:border-zinc-400 hover:bg-zinc-50"
         >
           <GoogleG className="h-[18px] w-[18px]" />
-          Continue with Google
+          {copy.login.google}
         </button>
 
         <p className="mt-4 text-center text-[11px] leading-relaxed text-zinc-400">
-          We only store your name, email and avatar for sign-in. By continuing, you agree to our{' '}
+          {copy.login.disclosureBefore}{' '}
           <Link to="/terms" onClick={onClose} className="underline underline-offset-2 hover:text-zinc-600">
-            Terms
+            {copy.login.terms}
           </Link>{' '}
-          and acknowledge our{' '}
+          {copy.login.disclosureMiddle}{' '}
           <Link
             to="/privacy"
             onClick={onClose}
             className="underline underline-offset-2 hover:text-zinc-600"
           >
-            Privacy Policy
+            {copy.login.privacy}
           </Link>
           .
         </p>

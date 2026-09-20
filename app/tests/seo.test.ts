@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import test from 'node:test'
 import { handleRequest } from '../edge/index.js'
+import { LOCALES, UI_COPY, localeHomePath } from '../src/lib/locale.ts'
 import { absoluteUrl, getPageSeo, PRERENDER_PATHS } from '../src/lib/seo.ts'
 
 const projectRoot = process.cwd()
@@ -17,17 +18,27 @@ function matchContent(html: string, pattern: RegExp, label: string): string {
   return match[1]
 }
 
+function visibleText(html: string): string {
+  return html
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 for (const pathname of PRERENDER_PATHS) {
   test(`${pathname} has prerendered content and route-specific SEO`, async () => {
     const seo = getPageSeo(pathname)
     const html = await readFile(outputFile(pathname), 'utf8')
 
     assert.equal(matchContent(html, /<title>(.*?)<\/title>/, 'title'), seo.title)
+    assert.equal(matchContent(html, /<html lang="([^"]+)">/, 'html language'), seo.language)
     assert.equal(
       matchContent(html, /<meta name="description" content="([^"]+)" \/>/, 'description'),
       seo.description.replaceAll('&', '&amp;').replaceAll('"', '&quot;'),
     )
     assert.match(html, new RegExp(`<link rel="canonical" href="${absoluteUrl(seo.canonicalPath!)}"`))
+    assert.match(html, new RegExp(`<meta property="og:locale" content="${seo.ogLocale}"`))
     assert.match(html, /<meta property="og:image" content="https:\/\/jevaimodel\.app\/og-image\.png"/)
     assert.match(html, /<meta name="twitter:image" content="https:\/\/jevaimodel\.app\/og-image\.png"/)
     assert.match(html, /<link rel="icon" type="image\/svg\+xml" href="\/favicon\.svg"/)
@@ -36,6 +47,9 @@ for (const pathname of PRERENDER_PATHS) {
     assert.doesNotMatch(html, /href="#"/)
     assert.doesNotMatch(html, /code-path=/)
     assert.equal(html.match(/<h1\b/g)?.length, 1)
+    if (seo.h1) {
+      assert.equal(visibleText(matchContent(html, /(<h1\b[\s\S]*?<\/h1>)/, 'H1')), seo.h1)
+    }
 
     const jsonLd = matchContent(
       html,
@@ -53,6 +67,45 @@ test('404 output is prerendered and explicitly excluded from indexing', async ()
   assert.doesNotMatch(html, /rel="canonical"/)
   assert.doesNotMatch(html, /id="seo-json-ld"/)
   assert.match(html, /<h1[^>]*>This page does not exist<\/h1>/)
+})
+
+test('localized home pages have unique TDH and reciprocal hreflang links', async () => {
+  const titles = new Set<string>()
+  const descriptions = new Set<string>()
+  const headings = new Set<string>()
+
+  for (const locale of LOCALES) {
+    const pathname = localeHomePath(locale.code)
+    const seo = getPageSeo(pathname)
+    const copy = UI_COPY[locale.code].seo
+    const html = await readFile(outputFile(pathname), 'utf8')
+
+    assert.equal(seo.title, copy.title)
+    assert.equal(seo.description, copy.description)
+    assert.equal(seo.h1, copy.h1)
+    assert.match(html, new RegExp(`<link rel="canonical" href="${absoluteUrl(pathname)}"`))
+
+    for (const alternate of LOCALES) {
+      assert.match(
+        html,
+        new RegExp(
+          `<link rel="alternate" hreflang="${alternate.hrefLang}" href="${absoluteUrl(localeHomePath(alternate.code))}"`,
+        ),
+      )
+    }
+    assert.match(
+      html,
+      /<link rel="alternate" hreflang="x-default" href="https:\/\/jevaimodel\.app\/"/,
+    )
+
+    titles.add(copy.title)
+    descriptions.add(copy.description)
+    headings.add(copy.h1)
+  }
+
+  assert.equal(titles.size, LOCALES.length)
+  assert.equal(descriptions.size, LOCALES.length)
+  assert.equal(headings.size, LOCALES.length)
 })
 
 test('sitemap and robots expose only intentional crawl targets', async () => {
@@ -92,6 +145,7 @@ test('edge router canonicalizes scheme, host, and public trailing slashes', asyn
     ['http://jevaimodel.app/docs?ref=test', 'https://jevaimodel.app/docs?ref=test'],
     ['https://www.jevaimodel.app/examples', 'https://jevaimodel.app/examples'],
     ['https://jevaimodel.app/privacy/', 'https://jevaimodel.app/privacy'],
+    ['https://jevaimodel.app/zh-cn/?ref=test', 'https://jevaimodel.app/zh-cn?ref=test'],
   ]
 
   for (const [input, expected] of cases) {

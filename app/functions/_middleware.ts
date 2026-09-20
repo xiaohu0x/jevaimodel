@@ -1,6 +1,19 @@
 const CANONICAL_HOST = 'jevaimodel.app'
 const WWW_HOST = 'www.jevaimodel.app'
-const CANONICAL_PATHS = new Set(['/docs', '/examples', '/privacy', '/terms', '/use-cases'])
+const CANONICAL_PATHS = new Set([
+  '/docs',
+  '/examples',
+  '/privacy',
+  '/terms',
+  '/use-cases',
+  '/zh-cn',
+  '/es',
+  '/ja',
+  '/ko',
+  '/fr',
+  '/de',
+  '/pt-br',
+])
 
 const SECURITY_HEADERS: Record<string, string> = {
   'Content-Security-Policy': [

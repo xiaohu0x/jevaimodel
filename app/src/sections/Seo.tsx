@@ -26,7 +26,7 @@ export default function Seo() {
     const image = `${SITE_ORIGIN}${SOCIAL_IMAGE_PATH}`
 
     document.title = seo.title
-    document.documentElement.lang = 'en'
+    document.documentElement.lang = seo.language
     setMeta('name', 'description', seo.description)
     setMeta(
       'name',
@@ -37,7 +37,7 @@ export default function Seo() {
     )
     setMeta('property', 'og:type', seo.ogType ?? 'website')
     setMeta('property', 'og:site_name', 'JEV AI Model')
-    setMeta('property', 'og:locale', 'en_US')
+    setMeta('property', 'og:locale', seo.ogLocale)
     setMeta('property', 'og:title', seo.title)
     setMeta('property', 'og:description', seo.description)
     setMeta('property', 'og:url', canonical ?? `${SITE_ORIGIN}${pathname}`)
@@ -63,6 +63,16 @@ export default function Seo() {
       canonicalElement.href = canonical
     } else {
       canonicalElement?.remove()
+    }
+
+    document.head.querySelectorAll('link[data-seo-alternate]').forEach((element) => element.remove())
+    for (const alternate of seo.alternates ?? []) {
+      const element = document.createElement('link')
+      element.rel = 'alternate'
+      element.hreflang = alternate.hrefLang
+      element.href = alternate.href
+      element.dataset.seoAlternate = 'true'
+      document.head.appendChild(element)
     }
 
     let structuredData = document.head.querySelector<HTMLScriptElement>('#seo-json-ld')

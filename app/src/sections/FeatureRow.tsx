@@ -1,23 +1,12 @@
-const FEATURES: { title: string; body: string }[] = [
-  {
-    title: 'Decisions, not strings',
-    body: 'Every answer comes back as a type you can branch on — a boolean, a score, or one of your options.',
-  },
-  {
-    title: 'Calibrated confidence',
-    body: 'Each result carries a confidence value, so low-confidence cases can be routed to a person.',
-  },
-  {
-    title: 'No setup',
-    body: 'Try three classifications without an account or API key, then sign in to continue.',
-  },
-]
+import { useLocale } from '@/lib/useLocale'
 
 export default function FeatureRow() {
+  const { copy } = useLocale()
+
   return (
     <section className="border-y border-zinc-200">
       <div className="mx-auto grid w-full max-w-[1240px] px-4 sm:px-8 lg:grid-cols-3">
-        {FEATURES.map((f, i) => (
+        {copy.features.map((f, i) => (
           <div
             key={f.title}
             className={

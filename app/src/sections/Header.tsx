@@ -1,7 +1,10 @@
-import { BookOpen, LogOut } from 'lucide-react'
+import { BookOpen, LogIn, LogOut } from 'lucide-react'
 import { Link } from 'react-router'
 import type { AccountUser } from '@/lib/useAccount'
+import { localeHomePath } from '@/lib/locale'
+import { useLocale } from '@/lib/useLocale'
 import { BrandMark } from '@/sections/Illustrations'
+import LanguageMenu from '@/sections/LanguageMenu'
 
 interface HeaderProps {
   user: AccountUser | null
@@ -18,32 +21,45 @@ export default function Header({
   onShare,
   shared,
 }: HeaderProps) {
+  const { locale, copy } = useLocale()
+  const home = localeHomePath(locale)
+
   return (
     <header className="sticky top-0 z-30 shrink-0 border-b border-zinc-950/[0.07] bg-[#FEFEFE]/85 backdrop-blur">
       <div className="flex h-16 items-center gap-3 px-4 sm:px-8">
-        <div className="flex items-center gap-2.5">
+        <Link to={home} className="flex min-w-0 items-center gap-2.5">
           <BrandMark className="h-8 w-8 shrink-0" />
-          <span className="text-[15px] font-semibold tracking-[-0.015em] text-zinc-900">
+          <span className="hidden text-[15px] font-semibold tracking-[-0.015em] text-zinc-900 min-[360px]:inline">
             JEV AI Model
           </span>
           <span className="hidden h-4 w-px bg-zinc-300 sm:block" />
-          <span className="hidden text-[14px] font-medium text-zinc-400 sm:inline">Playground</span>
-        </div>
+          <span className="hidden text-[14px] font-medium text-zinc-400 lg:inline">
+            {copy.header.playground}
+          </span>
+        </Link>
 
         <div className="ml-auto flex items-center gap-1">
           <Link
-            to="/docs"
+            to={`${home}#how-it-works`}
+            aria-label={copy.header.howItWorks}
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-[14px] font-medium text-zinc-500 transition-colors hover:bg-zinc-900/[0.05] hover:text-zinc-900"
           >
             <BookOpen className="h-4 w-4" strokeWidth={1.8} />
-            <span className="hidden sm:inline">How it works</span>
+            <span className="hidden lg:inline">{copy.header.howItWorks}</span>
           </Link>
+
+          <LanguageMenu />
 
           <button
             onClick={onShare}
             className="rounded-lg px-3 py-2 text-[14px] font-medium text-zinc-500 transition-colors hover:bg-zinc-900/[0.05] hover:text-zinc-900"
           >
-            {shared ? 'Copied' : 'Share'}
+            <span className="hidden sm:inline">
+              {shared ? copy.header.copied : copy.header.share}
+            </span>
+            <span className="sm:hidden" aria-hidden>
+              {shared ? '✓' : '↗'}
+            </span>
           </button>
 
           {user ? (
@@ -65,7 +81,8 @@ export default function Header({
               )}
               <button
                 onClick={onSignOut}
-                title="Sign out"
+                title={copy.header.signOut}
+                aria-label={copy.header.signOut}
                 className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-900/[0.05] hover:text-zinc-700"
               >
                 <LogOut className="h-4 w-4" strokeWidth={1.8} />
@@ -74,9 +91,11 @@ export default function Header({
           ) : (
             <button
               onClick={onSignIn}
-              className="ml-1 rounded-lg bg-zinc-900 px-4 py-2 text-[14px] font-semibold text-[#fafafa] transition-colors hover:bg-zinc-700"
+              aria-label={copy.header.signIn}
+              className="ml-1 flex h-9 items-center justify-center gap-1.5 rounded-lg bg-zinc-900 px-2.5 text-[14px] font-semibold text-[#fafafa] transition-colors hover:bg-zinc-700 sm:px-4"
             >
-              Sign in
+              <LogIn className="h-4 w-4 sm:hidden" strokeWidth={2} aria-hidden />
+              <span className="hidden sm:inline">{copy.header.signIn}</span>
             </button>
           )}
         </div>

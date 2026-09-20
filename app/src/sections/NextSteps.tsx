@@ -1,5 +1,7 @@
-import { PRIMITIVE_META, type PrimitiveType, type RunRecord } from '@/lib/engine'
+import { type PrimitiveType, type RunRecord } from '@/lib/engine'
+import { formatMessage } from '@/lib/locale'
 import { TYPE_DOT } from '@/lib/type-style'
+import { useLocale } from '@/lib/useLocale'
 import { cn } from '@/lib/utils'
 
 interface NextStepsProps {
@@ -21,6 +23,7 @@ export default function NextSteps({
   onAddQuestion,
   onFocusContext,
 }: NextStepsProps) {
+  const { copy } = useLocale()
   const used = new Set(run.results.map((r) => r.question.type))
   const unused = (['noul', 'score', 'choice'] as PrimitiveType[]).filter((t) => !used.has(t))
   const tweakKey = contextKeys[0]
@@ -30,7 +33,7 @@ export default function NextSteps({
   return (
     <div className="mt-6 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/50 p-5">
       <p className="font-mono text-[10.5px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
-        Try next
+        {copy.next.title}
       </p>
 
       <div className="mt-3 flex flex-wrap gap-2.5">
@@ -40,18 +43,16 @@ export default function NextSteps({
             className="group flex items-center gap-2.5 rounded-xl border border-zinc-300 bg-white px-4 py-3 text-left transition-colors hover:border-zinc-900"
           >
             <span className="text-[15px] text-zinc-700">
-              Change{' '}
-              <span className="font-mono font-medium text-zinc-900">{tweakKey}</span> and run
-              again
+              {formatMessage(copy.next.changeAndRun, { field: tweakKey })}
             </span>
             <span className="font-mono text-[11px] text-zinc-400 group-hover:text-zinc-600">
-              see the answer move
+              {copy.next.seeMove}
             </span>
           </button>
         )}
 
         {unused.map((t) => {
-          const m = PRIMITIVE_META[t]
+          const m = copy.primitives[t]
           return (
             <button
               key={t}
@@ -60,7 +61,7 @@ export default function NextSteps({
             >
               <span className={cn('h-2 w-2 shrink-0 rounded-full', TYPE_DOT[t])} />
               <span className="text-[15px] text-zinc-700">
-                Also ask <span className="font-medium text-zinc-900">{m.ask}</span>
+                {formatMessage(copy.next.alsoAsk, { question: m.ask })}
               </span>
               <span className="font-mono text-[11px] text-zinc-400 group-hover:text-zinc-600">
                 {m.answerShape}

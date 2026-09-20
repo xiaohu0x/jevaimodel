@@ -6,6 +6,7 @@ import {
   type StateField,
 } from '@/lib/state-fields'
 import { cn } from '@/lib/utils'
+import { useLocale } from '@/lib/useLocale'
 
 interface StateEditorProps {
   value: string
@@ -58,6 +59,7 @@ function highlight(json: string): React.ReactNode[] {
 
 export default function StateEditor({ value, onChange }: StateEditorProps) {
   const [mode, setMode] = useState<Mode>('form')
+  const { copy } = useLocale()
 
   const fields = useMemo(() => stateToFields(value), [value])
 
@@ -99,10 +101,10 @@ export default function StateEditor({ value, onChange }: StateEditorProps) {
     <section className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pb-3">
         <h2 className="font-display text-[19px] font-medium tracking-[-0.02em] text-zinc-900 sm:text-[22px]">
-          Context
+          {copy.editor.context}
         </h2>
         <span className="hidden text-[14px] text-zinc-400 sm:inline">
-          the facts to judge — one per row
+          {copy.editor.contextHint}
         </span>
 
         <div className="ml-auto flex items-center gap-2.5">
@@ -114,7 +116,7 @@ export default function StateEditor({ value, onChange }: StateEditorProps) {
                   valid === false ? 'bg-amber-500' : valid ? 'bg-emerald-500' : 'bg-zinc-300',
                 )}
               />
-              {valid === false ? 'invalid JSON' : 'JSON'}
+              {valid === false ? copy.editor.invalidJson : 'JSON'}
             </span>
           )}
           <ModeToggle mode={effectiveMode} formAvailable={formAvailable} onChange={setMode} />
@@ -129,8 +131,8 @@ export default function StateEditor({ value, onChange }: StateEditorProps) {
           {!formAvailable && value.trim() !== '' && (
             <p className="mt-2.5 text-[13.5px] text-zinc-400">
               {valid === false
-                ? 'Fix the JSON above to switch back to the field view.'
-                : 'This context is nested, so it stays in JSON. Flat key/value data can use the field view.'}
+                ? copy.editor.fixJson
+                : copy.editor.nestedJson}
             </p>
           )}
         </>
@@ -150,12 +152,14 @@ function ModeToggle({
   formAvailable: boolean
   onChange: (m: Mode) => void
 }) {
+  const { copy } = useLocale()
+
   return (
     <div className="flex items-center gap-0.5 rounded-full border border-zinc-300 bg-zinc-100 p-1">
       <button
         onClick={() => onChange('form')}
         disabled={!formAvailable}
-        title={formAvailable ? 'Field view' : 'Field view needs a flat JSON object'}
+        title={formAvailable ? copy.editor.fieldView : copy.editor.fieldViewUnavailable}
         aria-pressed={mode === 'form'}
         className={cn(
           'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-semibold transition-colors',
@@ -164,7 +168,7 @@ function ModeToggle({
         )}
       >
         <Table2 className="h-3.5 w-3.5" strokeWidth={2.2} />
-        Fields
+        {copy.editor.fields}
       </button>
       <button
         onClick={() => onChange('json')}
@@ -193,6 +197,7 @@ function FieldsView({
   fields: StateField[]
   onChange: (f: StateField[]) => void
 }) {
+  const { copy } = useLocale()
   const patch = (i: number, next: Partial<StateField>) =>
     onChange(fields.map((f, j) => (i === j ? { ...f, ...next } : f)))
 
@@ -203,17 +208,17 @@ function FieldsView({
     <div className="flex min-h-[190px] flex-1 flex-col overflow-hidden rounded-xl border border-zinc-300 bg-white sm:min-h-[240px]">
       <div className="flex items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-4 py-2">
         <span className="flex-1 font-mono text-[10.5px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
-          Field
+          {copy.editor.field}
         </span>
         <span className="flex-[1.5] font-mono text-[10.5px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
-          Value
+          {copy.editor.value}
         </span>
         <span className="w-7" />
       </div>
 
       {fields.length === 0 && (
         <p className="flex flex-1 items-center justify-center px-4 py-8 text-center text-[14.5px] text-zinc-400 sm:text-[15px]">
-          No facts yet — add a field, or pick an example above.
+          {copy.editor.noFacts}
         </p>
       )}
 
@@ -227,7 +232,7 @@ function FieldsView({
             onChange={(e) => patch(i, { key: e.target.value })}
             spellCheck={false}
             placeholder="food"
-            aria-label={`Field ${i + 1} name`}
+            aria-label={`${copy.editor.field} ${i + 1}`}
             className={cn(cellCls, 'min-w-0 flex-1 font-mono font-medium')}
           />
           <span aria-hidden className="h-5 w-px shrink-0 bg-zinc-200" />
@@ -236,13 +241,13 @@ function FieldsView({
             onChange={(e) => patch(i, { value: e.target.value })}
             spellCheck={false}
             placeholder="hotdog"
-            aria-label={`Field ${i + 1} value`}
+            aria-label={`${copy.editor.value} ${i + 1}`}
             className={cn(cellCls, 'min-w-0 flex-[1.5]')}
           />
           <button
             onClick={() => remove(i)}
-            title="Remove field"
-            aria-label={`Remove field ${f.key || i + 1}`}
+            title={copy.editor.removeField}
+            aria-label={`${copy.editor.removeField} ${f.key || i + 1}`}
             className="mr-2.5 shrink-0 rounded-md p-1.5 text-zinc-300 transition-colors hover:bg-zinc-100 hover:text-zinc-900 sm:opacity-0 sm:group-hover/row:opacity-100 sm:focus-visible:opacity-100"
           >
             <X className="h-4 w-4" strokeWidth={2} />
@@ -255,7 +260,7 @@ function FieldsView({
         className="mt-auto flex w-full items-center gap-2 border-t border-zinc-200 px-4 py-3.5 text-[14.5px] font-medium text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
       >
         <Plus className="h-4 w-4" strokeWidth={2.2} />
-        Add a field
+        {copy.editor.addField}
       </button>
     </div>
   )
@@ -264,6 +269,7 @@ function FieldsView({
 /* ---------------------------------------------------------------- */
 
 function JsonView({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { copy } = useLocale()
   const rows = Math.max(value.split('\n').length, 9)
 
   return (
@@ -293,7 +299,7 @@ function JsonView({ value, onChange }: { value: string; onChange: (v: string) =>
         value={value}
         onChange={(e) => onChange(e.target.value)}
         spellCheck={false}
-        aria-label="Context JSON"
+        aria-label={copy.editor.contextJson}
         placeholder='{ "food": "hotdog", "upright": true }'
         className="absolute inset-0 h-full w-full resize-none bg-transparent pt-4 pr-4 pb-4 pl-14 font-mono text-[14px] leading-[1.85rem] break-words whitespace-pre-wrap text-transparent caret-zinc-900 outline-none selection:bg-zinc-200 placeholder:text-zinc-300"
       />

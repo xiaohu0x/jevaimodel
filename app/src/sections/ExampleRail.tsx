@@ -2,6 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import { LESSONS, USE_CASES, type Preset } from '@/lib/engine'
 import { TYPE_DOT } from '@/lib/type-style'
 import { cn } from '@/lib/utils'
+import { useLocale } from '@/lib/useLocale'
 
 /** Three teaching lessons plus one real-world case — enough to show the range. */
 const RAIL: Preset[] = [...LESSONS, USE_CASES[0]]
@@ -12,15 +13,17 @@ interface ExampleRailProps {
 }
 
 export default function ExampleRail({ activeId, onLoadPreset }: ExampleRailProps) {
+  const { copy } = useLocale()
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-zinc-400 uppercase sm:text-[11px]">
-          New here? Start with an example
+          {copy.examples.prompt}
         </span>
         <ArrowRight className="h-3.5 w-3.5 shrink-0 text-zinc-300" strokeWidth={2.2} />
         <span className="hidden text-[14px] text-zinc-400 sm:inline">
-          each one fills in the context and the question below
+          {copy.examples.hint}
         </span>
       </div>
 
@@ -42,7 +45,7 @@ export default function ExampleRail({ activeId, onLoadPreset }: ExampleRailProps
               <span aria-hidden className="text-[17px] leading-none">
                 {p.emoji}
               </span>
-              {p.title}
+              {copy.examples.titles[p.id] ?? p.title}
               <span
                 aria-hidden
                 className={cn(

@@ -24,6 +24,8 @@ import {
 } from '@/lib/engine'
 import { stateToFields } from '@/lib/state-fields'
 import { useAccount } from '@/lib/useAccount'
+import { formatMessage } from '@/lib/locale'
+import { useLocale } from '@/lib/useLocale'
 import { cn } from '@/lib/utils'
 
 /*
@@ -34,6 +36,7 @@ import { cn } from '@/lib/utils'
 const INITIAL_QUESTIONS: Question[] = []
 
 export default function Home() {
+  const { copy } = useLocale()
   const [state, setState] = useState(DEFAULT_STATE)
   const [questions, setQuestions] = useState<Question[]>(INITIAL_QUESTIONS)
   const [activePreset, setActivePreset] = useState<string | null>(null)
@@ -99,17 +102,25 @@ export default function Home() {
           setLoginOpen(true)
           return
         }
+        if (err.code === 'RATE_LIMITED') {
+          setRunError(
+            formatMessage(copy.action.wait, {
+              seconds: err.quota?.retryAfterSeconds ?? 10,
+            }),
+          )
+          return
+        }
+        if (err.code === 'DAILY_LIMIT') {
+          setRunError(copy.action.dailyDone)
+          return
+        }
       }
-      setRunError(
-        err instanceof ClassifyError
-          ? err.message
-          : 'Something went wrong reaching the classifier.',
-      )
+      setRunError(copy.action.genericError)
     } finally {
       runningRef.current = false
       setRunning(false)
     }
-  }, [questions, state, account])
+  }, [questions, state, account, copy])
 
   const handleClear = useCallback(() => {
     setState(DEFAULT_STATE)
@@ -176,18 +187,18 @@ export default function Home() {
     dailyExhausted
 
   const allowanceLabel = account.loading
-    ? 'Checking allowance...'
+    ? copy.action.checking
     : account.cooldownSeconds > 0
-      ? `Ready in ${account.cooldownSeconds}s`
+      ? formatMessage(copy.action.readyIn, { seconds: account.cooldownSeconds })
       : account.quota
         ? account.user
           ? account.quota.remaining > 0
-            ? `${account.quota.remaining} of 30 runs left today`
-            : '30 runs used today. Come back tomorrow.'
+            ? formatMessage(copy.action.userRemaining, { count: account.quota.remaining })
+            : copy.action.dailyDone
           : account.quota.remaining > 0
-            ? `${account.quota.remaining} free runs left`
-            : 'Sign in to continue'
-        : 'Usage unavailable'
+            ? formatMessage(copy.action.guestRemaining, { count: account.quota.remaining })
+            : copy.action.signInContinue
+        : copy.action.unavailable
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FEFEFE] text-zinc-900 antialiased">
@@ -204,15 +215,15 @@ export default function Home() {
           <div className="mx-auto w-full max-w-[1240px] px-4 pt-5 sm:px-8">
             <div className="flex items-center gap-3 rounded-xl border border-[#f386a1] bg-[#f386a1]/10 px-4 py-3">
               <span className="text-[14.5px] text-zinc-800">
-                Couldn’t complete Google sign-in
-                <span className="font-mono text-[12.5px] text-zinc-500"> ({authError})</span>. Please
-                try again.
+                {copy.action.authError}
+                <span className="font-mono text-[12.5px] text-zinc-500"> ({authError})</span>.{' '}
+                {copy.action.tryAgain}
               </span>
               <button
                 onClick={() => setAuthError(null)}
                 className="ml-auto shrink-0 text-[13px] font-medium text-zinc-500 hover:text-zinc-900"
               >
-                Dismiss
+                {copy.action.dismiss}
               </button>
             </div>
           </div>
@@ -253,7 +264,7 @@ export default function Home() {
                   onClick={handleClear}
                   className="h-12 rounded-xl border border-zinc-300 bg-white px-6 text-[15px] font-medium text-zinc-600 transition-colors hover:border-zinc-900 hover:text-zinc-900"
                 >
-                  Clear
+                  {copy.action.clear}
                 </button>
                 <button
                   onClick={handleRun}
@@ -266,21 +277,25 @@ export default function Home() {
                   {running ? (
                     <>
                       <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.4} />
-                      Asking Jev
+                      {copy.action.asking}
                     </>
                   ) : guestExhausted ? (
                     <>
                       <LogIn className="h-4 w-4" strokeWidth={2} />
-                      Sign in to continue
+                      {copy.action.signInContinue}
                     </>
                   ) : dailyExhausted ? (
-                    <>Daily limit reached</>
+                    <>{copy.action.dailyLimit}</>
                   ) : account.cooldownSeconds > 0 ? (
-                    <>Ready in {account.cooldownSeconds}s</>
+                    <>
+                      {formatMessage(copy.action.readyIn, {
+                        seconds: account.cooldownSeconds,
+                      })}
+                    </>
                   ) : (
                     <>
                       <Play className="h-4 w-4 fill-current" strokeWidth={2} />
-                      Run
+                      {copy.action.run}
                       <span className="hidden font-mono text-[12px] font-normal opacity-50 sm:inline">
                         ⌘↵
                       </span>
@@ -298,7 +313,7 @@ export default function Home() {
                 onClick={() => setRunError(null)}
                 className="shrink-0 text-[13px] font-medium text-zinc-500 hover:text-zinc-900"
               >
-                Dismiss
+                {copy.action.dismiss}
               </button>
             </div>
           )}

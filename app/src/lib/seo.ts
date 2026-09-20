@@ -1,3 +1,6 @@
+import { LANDING_COPY } from './landing-copy.ts'
+import { LOCALES, UI_COPY, localeHomePath } from './locale.ts'
+
 export const SITE_ORIGIN = 'https://jevaimodel.app'
 export const SOCIAL_IMAGE_PATH = '/og-image.png'
 
@@ -6,10 +9,14 @@ type JsonLd = Record<string, unknown>
 export interface PageSeo {
   title: string
   description: string
+  language: string
+  ogLocale: string
   canonicalPath?: string
   index: boolean
   ogType?: 'website' | 'article'
   imageAlt: string
+  h1?: string
+  alternates?: readonly { hrefLang: string; href: string }[]
   structuredData?: JsonLd
 }
 
@@ -18,73 +25,77 @@ const website = {
   '@id': `${SITE_ORIGIN}/#website`,
   url: `${SITE_ORIGIN}/`,
   name: 'JEV AI Model',
-  description: 'JEV AI Model is a free online AI classifier playground for typed, grounded answers.',
+  inLanguage: LOCALES.map((locale) => locale.htmlLang),
 }
 
-const homeFaq = [
-  {
-    q: 'Is JEV AI Model free to use?',
-    a: 'Yes. You can run three classifications without creating an account. Sign in with Google for 30 playground runs per day.',
-  },
-  {
-    q: 'What is a JEV AI Model state?',
-    a: 'State is a JSON object that describes the world the model should reason about — a product, a candidate, a conversation, or a prompt. JEV AI Model answers questions strictly against this state, which keeps results grounded and auditable.',
-  },
-  {
-    q: 'What are Noul, Score, and Choice?',
-    a: 'They are the three question types. Noul returns the probability that a statement is true, Score rates the state against ordered levels you define, and Choice picks one option from a set you provide.',
-  },
-  {
-    q: 'Do I need an API key to try JEV AI Model?',
-    a: 'No. You can run the playground directly on this page. Sign in only if you want to keep going after the free trial runs out.',
-  },
-  {
-    q: 'What can I classify with JEV AI Model?',
-    a: 'Anything you can describe as state: résumés, support transcripts, user prompts, survey responses, product listings, and more. If you can write the facts as JSON and ask a typed question, the model can answer it.',
-  },
+const homeAlternates = [
+  ...LOCALES.map((locale) => ({
+    hrefLang: locale.hrefLang,
+    href: absoluteUrl(localeHomePath(locale.code)),
+  })),
+  { hrefLang: 'x-default', href: absoluteUrl('/') },
 ]
 
-const pageSeo: Record<string, PageSeo> = {
-  '/': {
-    title: 'JEV AI Model — Free AI Classifier Playground',
-    description:
-      'Try three JEV AI Model classifications without an account. Turn context into typed likelihoods, ratings, and choices in seconds.',
-    canonicalPath: '/',
-    index: true,
-    ogType: 'website',
-    imageAlt: 'JEV AI Model free AI classifier playground',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@graph': [
-        website,
-        {
-          '@type': 'SoftwareApplication',
-          '@id': `${SITE_ORIGIN}/#app`,
-          name: 'JEV AI Model',
-          applicationCategory: 'DeveloperApplication',
-          operatingSystem: 'Web browser',
-          url: `${SITE_ORIGIN}/`,
-          description:
-            'JEV AI Model turns state into typed answers: Noul returns the probability a statement is true, Score rates against levels you define, and Choice picks one option — each with calibrated confidence.',
-          image: `${SITE_ORIGIN}${SOCIAL_IMAGE_PATH}`,
-          offers: {
-            '@type': 'Offer',
-            price: '0',
-            priceCurrency: 'USD',
-          },
+const localizedHomeSeo = Object.fromEntries(
+  LOCALES.map((locale) => {
+    const pathname = localeHomePath(locale.code)
+    const url = absoluteUrl(pathname)
+    const copy = UI_COPY[locale.code]
+    const faq = LANDING_COPY[locale.code].faq.items
+
+    return [
+      pathname,
+      {
+        title: copy.seo.title,
+        description: copy.seo.description,
+        language: locale.htmlLang,
+        ogLocale: locale.ogLocale,
+        canonicalPath: pathname,
+        index: true,
+        ogType: 'website',
+        imageAlt: copy.seo.imageAlt,
+        h1: copy.seo.h1,
+        alternates: homeAlternates,
+        structuredData: {
+          '@context': 'https://schema.org',
+          '@graph': [
+            website,
+            {
+              '@type': 'SoftwareApplication',
+              '@id': `${url}#app`,
+              name: 'JEV AI Model',
+              applicationCategory: 'BusinessApplication',
+              operatingSystem: 'Web browser',
+              url,
+              inLanguage: locale.htmlLang,
+              description: copy.seo.description,
+              image: `${SITE_ORIGIN}${SOCIAL_IMAGE_PATH}`,
+              isAccessibleForFree: true,
+              offers: {
+                '@type': 'Offer',
+                price: '0',
+                priceCurrency: 'USD',
+              },
+            },
+            {
+              '@type': 'FAQPage',
+              '@id': `${url}#faq`,
+              url: `${url}#faq`,
+              inLanguage: locale.htmlLang,
+              mainEntity: faq.map(({ q, a }) => ({
+                '@type': 'Question',
+                name: q,
+                acceptedAnswer: { '@type': 'Answer', text: a },
+              })),
+            },
+          ],
         },
-        {
-          '@type': 'FAQPage',
-          '@id': `${SITE_ORIGIN}/#faq`,
-          mainEntity: homeFaq.map(({ q, a }) => ({
-            '@type': 'Question',
-            name: q,
-            acceptedAnswer: { '@type': 'Answer', text: a },
-          })),
-        },
-      ],
-    },
-  },
+      } satisfies PageSeo,
+    ]
+  }),
+) as Record<string, PageSeo>
+
+const englishPageSeo: Record<string, Omit<PageSeo, 'language' | 'ogLocale'>> = {
   '/docs': {
     title: 'AI Classifier Documentation | JEV AI Model',
     description:
@@ -178,9 +189,21 @@ const pageSeo: Record<string, PageSeo> = {
   },
 }
 
+const pageSeo: Record<string, PageSeo> = {
+  ...localizedHomeSeo,
+  ...Object.fromEntries(
+    Object.entries(englishPageSeo).map(([pathname, seo]) => [
+      pathname,
+      { ...seo, language: 'en', ogLocale: 'en_US' },
+    ]),
+  ),
+}
+
 const notFoundSeo: PageSeo = {
   title: 'Page Not Found | JEV AI Model',
   description: 'The requested page could not be found.',
+  language: 'en',
+  ogLocale: 'en_US',
   index: false,
   ogType: 'website',
   imageAlt: 'JEV AI Model',
