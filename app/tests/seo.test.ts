@@ -41,6 +41,10 @@ for (const pathname of PRERENDER_PATHS) {
     assert.match(html, new RegExp(`<meta property="og:locale" content="${seo.ogLocale}"`))
     assert.match(html, /<meta property="og:image" content="https:\/\/jevaimodel\.app\/og-image\.png"/)
     assert.match(html, /<meta name="twitter:image" content="https:\/\/jevaimodel\.app\/og-image\.png"/)
+    assert.match(
+      html,
+      /<link rel="icon" type="image\/png" sizes="192x192" href="\/icon-192\.png"/,
+    )
     assert.match(html, /<link rel="icon" type="image\/svg\+xml" href="\/favicon\.svg"/)
     assert.match(html, /<link rel="manifest" href="\/site\.webmanifest"/)
     assert.doesNotMatch(html, /<div id="root"><\/div>/)
