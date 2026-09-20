@@ -23,7 +23,7 @@ export default function Footer() {
             </div>
             <p className="mt-3 text-[12.5px] leading-relaxed text-zinc-500">
               A free online AI classifier playground. JEV AI Model turns JSON context into typed
-              answers — true or false, rubric scores, and multiple-choice — with a confidence value
+              answers — likelihoods, ratings, and choices — with a calibrated confidence value
               for every result.
             </p>
           </div>

@@ -32,7 +32,7 @@ const homeFaq = [
   },
   {
     q: 'What are Noul, Score, and Choice?',
-    a: 'They are the three question primitives in the model. Noul evaluates how true a proposition is, Score grades a subject against a rubric, and Choice selects the best option from a set you provide.',
+    a: 'They are the three question types. Noul returns the probability that a statement is true, Score rates the state against ordered levels you define, and Choice picks one option from a set you provide.',
   },
   {
     q: 'Do I need an API key to try JEV AI Model?',
@@ -48,7 +48,7 @@ const pageSeo: Record<string, PageSeo> = {
   '/': {
     title: 'JEV AI Model — Free AI Classifier Playground',
     description:
-      'Run the JEV AI Model playground free in your browser. Turn JSON context into typed answers — true or false, rubric scores, and multiple-choice — in seconds.',
+      'Run the JEV AI Model playground free in your browser. Turn context into typed answers — likelihoods, ratings, and choices — in seconds.',
     canonicalPath: '/',
     index: true,
     ogType: 'website',
@@ -65,7 +65,7 @@ const pageSeo: Record<string, PageSeo> = {
           operatingSystem: 'Web browser',
           url: `${SITE_ORIGIN}/`,
           description:
-            'JEV AI Model turns JSON state into typed answers: Noul truth evaluation, Score rubric grading, and Choice multiple-choice, with confidence and rationale for every result.',
+            'JEV AI Model turns state into typed answers: Noul returns the probability a statement is true, Score rates against levels you define, and Choice picks one option — each with calibrated confidence.',
           image: `${SITE_ORIGIN}${SOCIAL_IMAGE_PATH}`,
           offers: {
             '@type': 'Offer',
@@ -88,7 +88,7 @@ const pageSeo: Record<string, PageSeo> = {
   '/docs': {
     title: 'AI Classifier Documentation | JEV AI Model',
     description:
-      'Learn how to describe JSON state, ask Noul, Score, and Choice questions, and read confidence and rationale from JEV AI Model.',
+      'Learn how to describe state, ask Noul, Score, and Choice questions, and read the probabilities and confidence JEV AI Model returns.',
     canonicalPath: '/docs',
     index: true,
     ogType: 'article',
@@ -98,7 +98,7 @@ const pageSeo: Record<string, PageSeo> = {
       '@type': 'TechArticle',
       headline: 'JEV AI Model documentation',
       description:
-        'A practical guide to JSON state, typed questions, confidence values, and rationales in JEV AI Model.',
+        'A practical guide to state, typed questions, and the calibrated probabilities JEV AI Model returns.',
       url: `${SITE_ORIGIN}/docs`,
       inLanguage: 'en',
       isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
@@ -127,7 +127,7 @@ const pageSeo: Record<string, PageSeo> = {
   '/examples': {
     title: 'AI Classifier Examples | JEV AI Model',
     description:
-      'See complete JSON examples for binary classification, rubric scoring, and multiple-choice classification with JEV AI Model.',
+      'See complete JSON examples for likelihood, rating, and choice questions with JEV AI Model.',
     canonicalPath: '/examples',
     index: true,
     ogType: 'article',

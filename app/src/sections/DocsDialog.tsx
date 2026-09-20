@@ -2,24 +2,24 @@ import { X } from 'lucide-react'
 
 const SECTIONS = [
   {
-    title: 'Context — describe the world',
-    body: 'Write state as JSON: the facts the classifier should reason over. Every answer is grounded strictly in this object.',
+    title: 'Context — describe the situation',
+    body: 'State is what Jev evaluates: a JSON object of facts, or a plain passage of text. Every answer is grounded strictly in it.',
   },
   {
-    title: 'Noul — truth evaluation',
-    body: 'Ask how true a proposition is. Returns true/false, a confidence percentage, and a rationale anchored to specific state keys.',
+    title: 'Noul — how likely is it true?',
+    body: 'Write a statement and get back one number from 0 to 1. Near 1 is a strong yes, near 0 a strong no, and 0.5 means the model genuinely cannot tell.',
   },
   {
-    title: 'Score — rubric grading',
-    body: 'Grade a subject against your own rubric, with a per-dimension breakdown on a 0–max scale.',
+    title: 'Score — rate against levels',
+    body: 'Define ordered levels, lowest first. You get a number on that scale — 1.4 sits between level 1 and 2 — plus a probability for each level.',
   },
   {
-    title: 'Choice — multiple choice',
-    body: 'Pick the best option from the set you provide and see the probability distribution across all options.',
+    title: 'Choice — pick one option',
+    body: 'Give each option a description; that is what the model reads. You get the winning option, a probability for every option, and a confidence value.',
   },
   {
-    title: 'Referencing state',
-    body: 'Use `backticks` inside a question to reference a state key, e.g. "Is `food` a sandwich?". References keep questions reusable across contexts.',
+    title: 'Confidence',
+    body: 'Choice and Score return confidence separately from the answer. Low confidence is a signal to route the case to a person rather than act on it.',
   },
 ]
 

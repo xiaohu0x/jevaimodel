@@ -6,7 +6,7 @@ const LI = 'text-[15px] leading-[1.7] text-zinc-600'
 const USE_CASES: { title: string; body: string }[] = [
   {
     title: 'Résumé screening',
-    body: 'Put a candidate profile into state and ask how well they fit the role, then ask whether they should advance. Every answer comes back with a rationale you can show to a hiring manager.',
+    body: 'Put a candidate profile and the job posting into state, then rate relevance against levels you define and ask whether they should advance. Every answer carries a confidence value you can threshold on.',
   },
   {
     title: 'Support quality assurance',
@@ -18,7 +18,7 @@ const USE_CASES: { title: string; body: string }[] = [
   },
   {
     title: 'Content moderation',
-    body: 'Classify posts, comments, and listings against policy definitions you control, and keep a written rationale for every decision you make.',
+    body: 'Classify posts, comments, and listings against policy definitions you control, and keep the probability behind every decision for audit.',
   },
   {
     title: 'Survey and open-text coding',
@@ -41,11 +41,11 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'What are Noul, Score, and Choice?',
-    a: 'They are the three question primitives in the model. Noul evaluates how true a proposition is, Score grades a subject against a rubric, and Choice selects the best option from a set you provide.',
+    a: 'They are the three question types. Noul returns the probability that a statement is true, Score rates the state against ordered levels you define, and Choice picks one option from a set you provide.',
   },
   {
     q: 'Can JEV AI Model replace a human reviewer?',
-    a: 'It is built to speed up evaluation and labelling, not to remove review. Every answer includes a confidence value and a rationale, so low-confidence cases can be routed to a person.',
+    a: 'It is built to speed up evaluation and labelling, not to remove review. Answers come with calibrated probabilities, so low-confidence cases can be routed to a person automatically.',
   },
   {
     q: 'Do I need an API key to try JEV AI Model?',
@@ -67,7 +67,7 @@ export default function Content() {
           JEV AI Model is an AI classifier you can try directly in the browser. Instead of asking for
           a free-form essay, it takes a structured description of a situation — called state — and
           answers specific, typed questions about it: whether something is true, how well something
-          scores against a rubric, or which option fits best.
+          rates against levels you define, or which option fits best.
         </p>
         <p className={P}>
           Because every answer is anchored to the state you provide, the model is easy to audit.
@@ -88,15 +88,15 @@ export default function Content() {
           {[
             {
               t: 'Describe the state',
-              b: 'Write a JSON object that captures the facts — an object, a person, a conversation, a prompt. Keep it small and honest; the model only knows what you give it.',
+              b: 'Write the facts as a JSON object — a product, a person, a conversation, a prompt — or paste a plain passage of text. The model only knows what you give it.',
             },
             {
               t: 'Ask a typed question',
-              b: 'Choose a primitive — Noul, Score, or Choice — and phrase the question. Wrap a key from your state in backticks to reference it, so the question works on any state with that key.',
+              b: 'Choose the shape of answer you need — Noul for a likelihood, Score for a rating against levels you define, Choice for one option from a set. Ask several at once; they are evaluated independently against the same state.',
             },
             {
               t: 'Run and read the answer',
-              b: 'JEV AI Model returns a value, a confidence percentage, and a short rationale that points back to the specific state keys it used.',
+              b: 'You get numbers your code can branch on: a probability, a score on your scale, or a chosen option with the full probability distribution behind it.',
             },
           ].map((s, i) => (
             <li key={s.t} className="flex gap-4">
@@ -118,17 +118,18 @@ export default function Content() {
 
         <h3 className={`${H3} mt-6`}>Noul — how true is it?</h3>
         <p className={P}>
-          Noul answers yes-or-no propositions. Ask “Is `food` a sandwich?” or “Is `prompt` a jailbreak
-          attempt?” and the model returns True or False together with a confidence value and a
-          rationale. Use it for binary classification, policy checks, and guardrails.
+          Noul evaluates a statement and returns the probability that it is true — a single number
+          from 0 to 1. “The message conveys urgency” might come back as 0.99, while a genuine
+          coin-flip lands near 0.5. That middle ground is information: it tells you the model is
+          uncertain rather than hiding the doubt behind a confident True.
         </p>
 
         <h3 className={`${H3} mt-6`}>Score — how well does it grade?</h3>
         <p className={P}>
-          Score grades a subject against your own rubric on a 0-to-max scale. Give it a rubric such as
-          “technical depth, leadership, domain match” and it returns a score plus a
-          per-dimension breakdown, so you can see where the points came from. It is a fast way to run
-          LLM-as-a-judge style evaluation without writing a scoring prompt from scratch.
+          Score rates the state against ordered levels you write yourself — for example “Cosmetic”,
+          “Workaround exists”, “Blocking”. The answer is a number on that scale, so 1.4 means the
+          model places it between level 1 and level 2, and you also get the probability it assigned
+          to each level.
         </p>
 
         <h3 className={`${H3} mt-6`}>Choice — which option fits?</h3>
@@ -178,11 +179,11 @@ export default function Content() {
         <h2 className={`${H2} mt-12`}>Why teams choose JEV AI Model</h2>
         <ul className="mt-5 space-y-3">
           {[
-            ['Structured by default', 'Every answer is a value, a confidence, and a rationale — ready to log, compare, or store.'],
+            ['Structured by default', 'Every answer is a number your code can act on — ready to log, compare, or threshold.'],
             ['Grounded in your state', 'The model reasons over the exact facts you pass in, so results stay reproducible and explainable.'],
-            ['Reusable questions', 'Reference state keys with backticks and the same question works across every record you own.'],
+            ['Reusable questions', 'The same question runs against every record you own — only the state changes.'],
             ['Three shapes, one call', 'Truth, scores, and choices cover most classification work without changing tools or prompts.'],
-            ['Nothing to install', 'Run the playground right here in your browser, for free, with no API key.'],
+            ['Nothing to install', 'Run the playground right here in your browser, for free, with no API key of your own.'],
           ].map(([t, b]) => (
             <li key={t} className="flex gap-3">
               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-500" />
