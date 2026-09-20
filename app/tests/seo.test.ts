@@ -3,10 +3,21 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import test from 'node:test'
 import { handleRequest } from '../edge/index.js'
-import { LOCALES, UI_COPY, localeHomePath } from '../src/lib/locale.ts'
+import { LOCALES, UI_COPY, localeHomePath, type Locale } from '../src/lib/locale.ts'
 import { absoluteUrl, getPageSeo, PRERENDER_PATHS } from '../src/lib/seo.ts'
 
 const projectRoot = process.cwd()
+
+const localizedTitleTargets = {
+  en: { brand: 'JEV AI Model', directAccess: 'No Waitlist' },
+  'zh-CN': { brand: 'JEV AI模型', directAccess: '免排队' },
+  es: { brand: 'JEV AI Model', directAccess: 'sin cola' },
+  ja: { brand: 'JEV AIモデル', directAccess: '順番待ち不要' },
+  ko: { brand: 'JEV AI 모델', directAccess: '대기열 없이' },
+  fr: { brand: 'JEV AI Model', directAccess: 'sans attente' },
+  de: { brand: 'JEV AI Model', directAccess: 'ohne Warteliste' },
+  'pt-BR': { brand: 'JEV AI Model', directAccess: 'sem fila' },
+} satisfies Record<Locale, { brand: string; directAccess: string }>
 
 function outputFile(pathname: string): string {
   return path.join(projectRoot, 'dist', pathname === '/' ? 'index.html' : `${pathname.slice(1)}.html`)
@@ -104,12 +115,20 @@ test('localized home pages have unique TDH and reciprocal hreflang links', async
     const pathname = localeHomePath(locale.code)
     const seo = getPageSeo(pathname)
     const copy = UI_COPY[locale.code].seo
+    const titleTarget = localizedTitleTargets[locale.code]
     const html = await readFile(outputFile(pathname), 'utf8')
 
     assert.equal(seo.title, copy.title)
     assert.equal(seo.description, copy.description)
     assert.equal(seo.h1, copy.h1)
-    assert.ok(copy.title.startsWith('JEV AI Model'), `${locale.code} title must lead with brand keyword`)
+    assert.ok(
+      copy.title.startsWith(titleTarget.brand),
+      `${locale.code} title must lead with its localized brand keyword`,
+    )
+    assert.ok(
+      copy.title.includes(titleTarget.directAccess),
+      `${locale.code} title must include its direct-access phrase`,
+    )
     assert.match(copy.description, /JEV AI Model/i)
     assert.match(copy.h1, /JEV AI Model/i)
     assert.ok(characterCount(copy.title) <= 60, `${locale.code} title exceeds 60 characters`)

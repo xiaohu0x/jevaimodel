@@ -182,7 +182,7 @@ interface UiCopy {
 export const UI_COPY: Record<Locale, UiCopy> = {
   en: {
     seo: {
-      title: 'JEV AI Model: Free AI Text Classifier Online',
+      title: 'JEV AI Model: Free AI Text Classifier Online, No Waitlist',
       description: 'JEV AI Model is a free online AI text classifier for text and JSON. Get probabilities, scores, labels, and confidence in seconds without an API key.',
       h1: 'JEV AI Model: free online AI text classifier',
       imageAlt: 'Free online AI text classifier by JEV AI Model',
@@ -219,7 +219,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
   },
   'zh-CN': {
     seo: {
-      title: 'JEV AI Model：免费在线 AI 文本分类器',
+      title: 'JEV AI模型：免排队直接使用的免费在线 AI 分类器',
       description: 'JEV AI Model 是免费在线 AI 文本分类器，支持文本和 JSON，快速返回概率、评分、标签与置信度，无需 API Key 即可试用。',
       h1: 'JEV AI Model：免费在线 AI 文本分类器',
       imageAlt: 'JEV AI Model 免费在线 AI 文本分类器',
@@ -249,7 +249,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
     footer: { description: '免费在线 AI 文本分类器，把文本和 JSON 转换为概率、评分与分类标签。', section: '分类工具', open: '打开分类工具', docs: '英文文档', useCases: '使用场景', examples: '示例', faq: '常见问题', privacy: '隐私政策', terms: '服务条款', source: '源代码' },
   },
   es: {
-    seo: { title: 'JEV AI Model: clasificador de texto con IA gratis', description: 'JEV AI Model es un clasificador de texto con IA gratis y online para texto y JSON. Obtén probabilidades, puntuaciones, etiquetas y confianza sin clave API.', h1: 'JEV AI Model: clasificador de texto con IA gratis', imageAlt: 'Clasificador de texto con IA gratis de JEV AI Model' },
+    seo: { title: 'JEV AI Model: clasificador de texto con IA gratis sin cola', description: 'JEV AI Model es un clasificador de texto con IA gratis y online para texto y JSON. Obtén probabilidades, puntuaciones, etiquetas y confianza sin clave API.', h1: 'JEV AI Model: clasificador de texto con IA gratis', imageAlt: 'Clasificador de texto con IA gratis de JEV AI Model' },
     header: { playground: 'Clasificador', howItWorks: 'Cómo funciona', share: 'Compartir', copied: 'Copiado', signIn: 'Entrar', signOut: 'Cerrar sesión', language: 'Idioma' },
     hero: { eyebrow: 'CLASIFICADOR DE TEXTO CON IA', lines: ['JEV AI Model:', 'clasificador de texto con IA gratis'], intro: 'Pega texto o JSON, elige el formato de respuesta y obtén una clasificación fundamentada con nivel de confianza.' },
     examples: { prompt: '¿Es tu primera vez? Empieza con un ejemplo', hint: 'cada ejemplo completa el contexto y la pregunta', titles: { hotdog: '¿Un perrito caliente es un sándwich?', sky: '¿De qué color está el cielo?', support: 'Clasificar un mensaje de soporte', resume: 'Evaluar un currículum' } },
@@ -263,7 +263,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
     footer: { description: 'Clasificador de texto con IA gratuito para convertir texto y JSON en probabilidades, puntuaciones y etiquetas.', section: 'CLASIFICADOR', open: 'Abrir el clasificador', docs: 'Documentación en inglés', useCases: 'Casos de uso', examples: 'Ejemplos', faq: 'Preguntas frecuentes', privacy: 'Privacidad', terms: 'Términos', source: 'Código fuente' },
   },
   ja: {
-    seo: { title: 'JEV AI Model：無料オンラインAIテキスト分類ツール', description: 'JEV AI Modelは、テキストやJSONを確率・スコア・ラベルに変換する無料オンラインAI分類ツールです。APIキーなしですぐ試せます。', h1: 'JEV AI Model：無料オンラインAIテキスト分類ツール', imageAlt: 'JEV AI Modelの無料AIテキスト分類ツール' },
+    seo: { title: 'JEV AIモデル：順番待ち不要の無料オンラインAI分類ツール', description: 'JEV AI Modelは、テキストやJSONを確率・スコア・ラベルに変換する無料オンラインAI分類ツールです。APIキーなしですぐ試せます。', h1: 'JEV AI Model：無料オンラインAIテキスト分類ツール', imageAlt: 'JEV AI Modelの無料AIテキスト分類ツール' },
     header: { playground: '分類ツール', howItWorks: '使い方', share: '共有', copied: 'コピー済み', signIn: 'ログイン', signOut: 'ログアウト', language: '言語' },
     hero: { eyebrow: 'オンラインAIテキスト分類', lines: ['JEV AI Model：', '無料オンラインAIテキスト分類ツール'], intro: 'テキストやJSONを貼り付け、回答形式を選ぶだけ。確信度付きの分類結果をすぐに取得できます。' },
     examples: { prompt: '初めてですか？例から始めましょう', hint: '下のコンテキストと質問が自動入力されます', titles: { hotdog: 'ホットドッグはサンドイッチ？', sky: '空は何色？', support: '問い合わせを振り分ける', resume: '履歴書を評価する' } },
@@ -277,7 +277,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
     footer: { description: 'テキストやJSONを確率・スコア・ラベルに変換する無料オンラインAI分類ツール。', section: '分類ツール', open: '分類ツールを開く', docs: '英語ドキュメント', useCases: '活用例', examples: '例', faq: 'よくある質問', privacy: 'プライバシー', terms: '利用規約', source: 'ソースコード' },
   },
   ko: {
-    seo: { title: 'JEV AI Model: 무료 온라인 AI 텍스트 분류기', description: 'JEV AI Model은 텍스트와 JSON을 확률, 점수, 라벨로 바꾸는 무료 온라인 AI 분류기입니다. API 키 없이 바로 사용해 보세요.', h1: 'JEV AI Model: 무료 온라인 AI 텍스트 분류기', imageAlt: 'JEV AI Model 무료 온라인 AI 텍스트 분류기' },
+    seo: { title: 'JEV AI 모델: 대기열 없이 바로 쓰는 무료 AI 텍스트 분류기', description: 'JEV AI Model은 텍스트와 JSON을 확률, 점수, 라벨로 바꾸는 무료 온라인 AI 분류기입니다. API 키 없이 바로 사용해 보세요.', h1: 'JEV AI Model: 무료 온라인 AI 텍스트 분류기', imageAlt: 'JEV AI Model 무료 온라인 AI 텍스트 분류기' },
     header: { playground: '분류 도구', howItWorks: '사용 방법', share: '공유', copied: '복사됨', signIn: '로그인', signOut: '로그아웃', language: '언어' },
     hero: { eyebrow: '온라인 AI 텍스트 분류', lines: ['JEV AI Model:', '무료 온라인 AI 텍스트 분류기'], intro: '텍스트나 JSON을 붙여 넣고 답변 형식을 선택하면 신뢰도가 포함된 분류 결과를 받을 수 있습니다.' },
     examples: { prompt: '처음이신가요? 예제로 시작하세요', hint: '아래 컨텍스트와 질문이 자동으로 채워집니다', titles: { hotdog: '핫도그는 샌드위치일까요?', sky: '하늘은 무슨 색일까요?', support: '고객 문의 분류하기', resume: '이력서 평가하기' } },
@@ -291,7 +291,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
     footer: { description: '텍스트와 JSON을 확률, 점수, 라벨로 바꾸는 무료 온라인 AI 텍스트 분류기입니다.', section: '분류 도구', open: '분류 도구 열기', docs: '영문 문서', useCases: '활용 사례', examples: '예제', faq: '자주 묻는 질문', privacy: '개인정보', terms: '이용약관', source: '소스 코드' },
   },
   fr: {
-    seo: { title: 'JEV AI Model : classificateur de texte IA gratuit', description: 'JEV AI Model est un classificateur de texte IA gratuit en ligne pour texte et JSON. Obtenez probabilités, scores, étiquettes et confiance sans clé API.', h1: 'JEV AI Model : classificateur de texte IA gratuit', imageAlt: 'Classificateur de texte IA gratuit JEV AI Model' },
+    seo: { title: 'JEV AI Model : classificateur IA gratuit sans attente', description: 'JEV AI Model est un classificateur de texte IA gratuit en ligne pour texte et JSON. Obtenez probabilités, scores, étiquettes et confiance sans clé API.', h1: 'JEV AI Model : classificateur de texte IA gratuit', imageAlt: 'Classificateur de texte IA gratuit JEV AI Model' },
     header: { playground: 'Classificateur', howItWorks: 'Fonctionnement', share: 'Partager', copied: 'Copié', signIn: 'Connexion', signOut: 'Déconnexion', language: 'Langue' },
     hero: { eyebrow: 'CLASSIFICATEUR DE TEXTE IA', lines: ['JEV AI Model :', 'classificateur de texte IA gratuit'], intro: 'Collez du texte ou du JSON, choisissez le format de réponse et obtenez une classification justifiée avec son niveau de confiance.' },
     examples: { prompt: 'Première visite ? Commencez par un exemple', hint: 'le contexte et la question seront remplis automatiquement', titles: { hotdog: 'Un hot-dog est-il un sandwich ?', sky: 'De quelle couleur est le ciel ?', support: 'Trier un message de support', resume: 'Évaluer un CV' } },
@@ -305,7 +305,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
     footer: { description: 'Classificateur de texte IA gratuit pour transformer texte et JSON en probabilités, scores et étiquettes.', section: 'CLASSIFICATEUR', open: 'Ouvrir le classificateur', docs: 'Documentation en anglais', useCases: 'Cas d’usage', examples: 'Exemples', faq: 'FAQ', privacy: 'Confidentialité', terms: 'Conditions', source: 'Code source' },
   },
   de: {
-    seo: { title: 'JEV AI Model: kostenloser KI-Textklassifikator', description: 'JEV AI Model ist ein kostenloser Online-KI-Textklassifikator für Text und JSON. Erhalte Wahrscheinlichkeiten, Bewertungen und Labels ohne API-Schlüssel.', h1: 'JEV AI Model: kostenloser KI-Textklassifikator', imageAlt: 'Kostenloser KI-Textklassifikator von JEV AI Model' },
+    seo: { title: 'JEV AI Model: Kostenloser KI-Klassifikator ohne Warteliste', description: 'JEV AI Model ist ein kostenloser Online-KI-Textklassifikator für Text und JSON. Erhalte Wahrscheinlichkeiten, Bewertungen und Labels ohne API-Schlüssel.', h1: 'JEV AI Model: kostenloser KI-Textklassifikator', imageAlt: 'Kostenloser KI-Textklassifikator von JEV AI Model' },
     header: { playground: 'Klassifikator', howItWorks: 'So funktioniert es', share: 'Teilen', copied: 'Kopiert', signIn: 'Anmelden', signOut: 'Abmelden', language: 'Sprache' },
     hero: { eyebrow: 'ONLINE KI-TEXTKLASSIFIKATOR', lines: ['JEV AI Model:', 'kostenloser KI-Textklassifikator'], intro: 'Text oder JSON einfügen, Antwortformat wählen und eine nachvollziehbare Klassifikation mit Konfidenz erhalten.' },
     examples: { prompt: 'Neu hier? Starte mit einem Beispiel', hint: 'Kontext und Frage werden automatisch ausgefüllt', titles: { hotdog: 'Ist ein Hotdog ein Sandwich?', sky: 'Welche Farbe hat der Himmel?', support: 'Supportanfrage einordnen', resume: 'Lebenslauf bewerten' } },
@@ -319,7 +319,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
     footer: { description: 'Kostenloser Online-KI-Textklassifikator für Wahrscheinlichkeiten, Bewertungen und Labels aus Text und JSON.', section: 'KLASSIFIKATOR', open: 'Klassifikator öffnen', docs: 'Englische Dokumentation', useCases: 'Anwendungsfälle', examples: 'Beispiele', faq: 'FAQ', privacy: 'Datenschutz', terms: 'Bedingungen', source: 'Quellcode' },
   },
   'pt-BR': {
-    seo: { title: 'JEV AI Model: classificador de texto com IA grátis', description: 'JEV AI Model é um classificador de texto com IA grátis e online para texto e JSON. Receba probabilidades, notas, rótulos e confiança sem chave de API.', h1: 'JEV AI Model: classificador de texto com IA grátis', imageAlt: 'Classificador de texto com IA grátis do JEV AI Model' },
+    seo: { title: 'JEV AI Model: classificador de texto com IA grátis sem fila', description: 'JEV AI Model é um classificador de texto com IA grátis e online para texto e JSON. Receba probabilidades, notas, rótulos e confiança sem chave de API.', h1: 'JEV AI Model: classificador de texto com IA grátis', imageAlt: 'Classificador de texto com IA grátis do JEV AI Model' },
     header: { playground: 'Classificador', howItWorks: 'Como funciona', share: 'Compartilhar', copied: 'Copiado', signIn: 'Entrar', signOut: 'Sair', language: 'Idioma' },
     hero: { eyebrow: 'CLASSIFICADOR DE TEXTO COM IA', lines: ['JEV AI Model:', 'classificador de texto com IA grátis'], intro: 'Cole texto ou JSON, escolha o formato da resposta e receba uma classificação fundamentada com nível de confiança.' },
     examples: { prompt: 'Primeira vez? Comece com um exemplo', hint: 'o contexto e a pergunta serão preenchidos abaixo', titles: { hotdog: 'Cachorro-quente é sanduíche?', sky: 'Qual é a cor do céu?', support: 'Classificar uma mensagem de suporte', resume: 'Avaliar um currículo' } },
