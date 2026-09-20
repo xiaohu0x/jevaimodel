@@ -15,16 +15,16 @@ export default function ExampleRail({ activeId, onLoadPreset }: ExampleRailProps
   return (
     <div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="font-mono text-[11px] font-medium tracking-[0.14em] text-zinc-400 uppercase">
+        <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-zinc-400 uppercase sm:text-[11px]">
           New here? Start with an example
         </span>
-        <ArrowRight className="h-3.5 w-3.5 text-zinc-300" strokeWidth={2.2} />
-        <span className="text-[14px] text-zinc-400">
+        <ArrowRight className="h-3.5 w-3.5 shrink-0 text-zinc-300" strokeWidth={2.2} />
+        <span className="hidden text-[14px] text-zinc-400 sm:inline">
           each one fills in the context and the question below
         </span>
       </div>
 
-      <div className="no-scrollbar -mx-4 mt-4 flex gap-2.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+      <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:mt-4 sm:flex-wrap sm:gap-2.5 sm:px-0">
         {RAIL.map((p) => {
           const active = p.id === activeId
           return (
@@ -33,7 +33,7 @@ export default function ExampleRail({ activeId, onLoadPreset }: ExampleRailProps
               onClick={() => onLoadPreset(p)}
               aria-pressed={active}
               className={cn(
-                'flex shrink-0 items-center gap-2.5 rounded-full border px-5 py-3 text-[15px] font-medium transition-colors',
+                'flex shrink-0 items-center gap-2 rounded-full border px-4 py-2.5 text-[14px] font-medium transition-colors sm:gap-2.5 sm:px-5 sm:py-3 sm:text-[15px]',
                 active
                   ? 'border-zinc-900 bg-zinc-900 text-white'
                   : 'border-zinc-300 bg-white text-zinc-700 hover:border-zinc-900 hover:text-zinc-900',

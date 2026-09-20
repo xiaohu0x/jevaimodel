@@ -64,3 +64,26 @@ test('isValidJson tracks parseability', () => {
   assert.equal(isValidJson('{"a":1'), false)
   assert.equal(isValidJson('   '), false)
 })
+
+/*
+ * Regression: "Add a field" appends a row with no key yet. A JSON object
+ * cannot hold a keyless entry, so serializing drops it — the row must be held
+ * in component state, not derived from the JSON, or the button does nothing.
+ */
+test('an unnamed row does not survive serialization', () => {
+  const before = JSON.stringify({ object: 'sky' }, null, 2)
+  const withBlank = [...stateToFields(before)!, { key: '', value: '' }]
+
+  // this is why the form view keeps its own rows
+  assert.equal(fieldsToState(withBlank), before)
+  assert.deepEqual(stateToFields(fieldsToState(withBlank)), stateToFields(before))
+})
+
+test('naming a row makes it persist', () => {
+  const rows = [
+    { key: 'object', value: 'sky' },
+    { key: 'time', value: 'golden hour' },
+  ]
+  const out = fieldsToState(rows)
+  assert.deepEqual(stateToFields(out), rows)
+})

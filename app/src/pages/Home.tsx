@@ -11,17 +11,27 @@ import Content from '@/sections/Content'
 import Footer from '@/sections/Footer'
 import LoginDialog from '@/sections/LoginDialog'
 import {
+  ClassifyError,
   DEFAULT_STATE,
+  blankQuestion,
   classify,
+  isQuestionReady,
   uid,
   type Preset,
+  type PrimitiveType,
   type Question,
   type RunRecord,
 } from '@/lib/engine'
+import { stateToFields } from '@/lib/state-fields'
 import { useAccount } from '@/lib/useAccount'
 import { cn } from '@/lib/utils'
 
-const INITIAL_QUESTIONS: Question[] = [{ id: uid(), type: 'noul', question: '' }]
+/*
+ * Start with no question at all: the empty state is the type picker, which is
+ * where a first-time visitor learns what the three primitives return. Seeding
+ * a blank Noul here would hide that lesson behind a card they did not choose.
+ */
+const INITIAL_QUESTIONS: Question[] = []
 
 export default function Home() {
   const [state, setState] = useState(DEFAULT_STATE)
@@ -29,7 +39,7 @@ export default function Home() {
   const [activePreset, setActivePreset] = useState<string | null>(null)
   const [runs, setRuns] = useState<RunRecord[]>([])
   const [running, setRunning] = useState(false)
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
+  const [runError, setRunError] = useState<string | null>(null)
   const [loginOpen, setLoginOpen] = useState(false)
   const [shared, setShared] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
@@ -37,6 +47,7 @@ export default function Home() {
   const account = useAccount()
   const runningRef = useRef(false)
   const resultRef = useRef<HTMLDivElement | null>(null)
+  const composerRef = useRef<HTMLDivElement | null>(null)
 
   const loadPreset = useCallback((p: Preset) => {
     setState(p.state)
@@ -58,8 +69,8 @@ export default function Home() {
 
   const handleRun = useCallback(async () => {
     if (runningRef.current) return
-    const qs = questions.filter((q) => q.question.trim())
-    if (!qs.length) return
+    const ready = questions.filter(isQuestionReady)
+    if (!ready.length) return
 
     // credits gate: silently enforced; when out of credits, ask to sign in
     if (!account.canRun) {
@@ -69,23 +80,38 @@ export default function Home() {
 
     runningRef.current = true
     setRunning(true)
-    setProgress({ done: 0, total: qs.length })
+    setRunError(null)
     account.consumeRun()
     try {
-      const record = await classify(qs, state, (done, total) => setProgress({ done, total }))
+      const record = await classify(ready, state)
       setRuns((r) => [...r, record])
+    } catch (err) {
+      setRunError(
+        err instanceof ClassifyError
+          ? err.message
+          : 'Something went wrong reaching the classifier.',
+      )
     } finally {
       runningRef.current = false
       setRunning(false)
-      setProgress(null)
     }
   }, [questions, state, account])
 
   const handleClear = useCallback(() => {
     setState(DEFAULT_STATE)
-    setQuestions([{ id: uid(), type: 'noul', question: '' }])
+    setQuestions([])
     setActivePreset(null)
     setRuns([])
+  }, [])
+
+  const addQuestionOfType = useCallback((t: PrimitiveType) => {
+    setQuestions((qs) => [...qs, blankQuestion(t)])
+    setActivePreset(null)
+    composerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [])
+
+  const focusContext = useCallback(() => {
+    composerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }, [])
 
   const handleShare = useCallback(() => {
@@ -123,7 +149,8 @@ export default function Home() {
     window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`)
   }, [])
 
-  const pending = questions.filter((q) => q.question.trim()).length
+  const contextKeys = (stateToFields(state) ?? []).map((f) => f.key).filter(Boolean)
+  const pending = questions.filter(isQuestionReady).length
   const disabled = running || pending === 0
 
   return (
@@ -158,26 +185,32 @@ export default function Home() {
         {/* console */}
         <section
           id="playground"
-          className="mx-auto w-full max-w-[1240px] scroll-mt-16 px-4 pt-10 pb-14 sm:px-8 sm:pt-14"
+          className="mx-auto w-full max-w-[1240px] scroll-mt-16 px-4 pt-5 pb-14 sm:px-8 sm:pt-7"
         >
           <Hero />
 
-          <div className="mt-11">
+          <div className="mt-6 sm:mt-7">
             <ExampleRail activeId={activePreset} onLoadPreset={loadPreset} />
           </div>
 
-          {/* composer — context and questions side by side on desktop */}
-          <div className="mt-6 overflow-hidden rounded-2xl border border-zinc-900/15 bg-white shadow-[0_1px_2px_rgba(30,30,30,0.04),0_12px_32px_-12px_rgba(30,30,30,0.12)]">
-            <div className="flex flex-col lg:flex-row lg:items-stretch">
-              <div className="flex flex-col p-5 sm:p-7 lg:w-1/2 lg:border-r lg:border-zinc-200">
+          {/* composer — context and questions side by side on desktop.
+              No overflow-hidden here: it would turn this card into a scroll
+              container and break the sticky action bar below. */}
+          <div
+            ref={composerRef}
+            className="mt-4 rounded-2xl border border-zinc-900/15 bg-white shadow-[0_1px_2px_rgba(30,30,30,0.04),0_12px_32px_-12px_rgba(30,30,30,0.12)]">
+            <div className="flex flex-col pb-16 lg:flex-row lg:items-stretch">
+              <div className="flex flex-col p-4 sm:p-6 lg:w-1/2 lg:border-r lg:border-zinc-200">
                 <StateEditor value={state} onChange={editState} />
               </div>
-              <div className="flex flex-col border-t border-zinc-200 p-5 sm:p-7 lg:w-1/2 lg:border-t-0">
+              <div className="flex flex-col border-t border-zinc-200 p-4 sm:p-6 lg:w-1/2 lg:border-t-0">
                 <QuestionsEditor questions={questions} onChange={editQuestions} />
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 border-t border-zinc-200 bg-zinc-50 px-5 py-4 sm:flex-row sm:items-center sm:px-7">
+            {/* action bar — sticks to the viewport bottom while the composer is
+                in view, so Run stays reachable however tall the content grows */}
+            <div className="sticky bottom-0 z-20 flex flex-col gap-3 rounded-b-2xl border-t border-zinc-200 bg-zinc-50/95 px-4 py-3.5 backdrop-blur sm:flex-row sm:items-center sm:px-6">
               <p className="hidden flex-1 text-[14px] text-zinc-400 sm:block">
                 Questions are evaluated against the context
               </p>
@@ -199,7 +232,7 @@ export default function Home() {
                   {running ? (
                     <>
                       <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.4} />
-                      {progress ? `Running ${progress.done}/${progress.total}` : 'Running'}
+                      Asking Jev
                     </>
                   ) : (
                     <>
@@ -215,9 +248,28 @@ export default function Home() {
             </div>
           </div>
 
+          {runError && (
+            <div className="mt-4 flex items-start gap-3 rounded-xl border border-[#f386a1] bg-[#f386a1]/10 px-4 py-3">
+              <span className="flex-1 text-[14.5px] leading-relaxed text-zinc-800">{runError}</span>
+              <button
+                onClick={() => setRunError(null)}
+                className="shrink-0 text-[13px] font-medium text-zinc-500 hover:text-zinc-900"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
           {/* results — expand below the composer */}
           <div ref={resultRef} className={cn((running || runs.length) && 'scroll-mt-20 pt-10')}>
-            <OutputPanel runs={runs} running={running} pendingQuestions={pending} />
+            <OutputPanel
+              runs={runs}
+              running={running}
+              pendingQuestions={pending}
+              contextKeys={contextKeys}
+              onAddQuestion={addQuestionOfType}
+              onFocusContext={focusContext}
+            />
           </div>
         </section>
 

@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { Plus, X } from 'lucide-react'
+import { GripVertical, Plus, X } from 'lucide-react'
 import {
   PRIMITIVE_META,
+  blankQuestion,
   type PrimitiveType,
   type Question,
-  uid,
 } from '@/lib/engine'
 import { TYPE_DOT } from '@/lib/type-style'
+import TypePicker from '@/sections/TypePicker'
 import { cn } from '@/lib/utils'
 
 interface QuestionsEditorProps {
@@ -15,18 +16,7 @@ interface QuestionsEditorProps {
 }
 
 export default function QuestionsEditor({ questions, onChange }: QuestionsEditorProps) {
-  const addQuestion = (type: PrimitiveType) => {
-    onChange([
-      ...questions,
-      {
-        id: uid(),
-        type,
-        question: '',
-        ...(type === 'score' ? { rubric: '', maxScore: 10 } : {}),
-        ...(type === 'choice' ? { options: ['', ''] } : {}),
-      },
-    ])
-  }
+  const addQuestion = (type: PrimitiveType) => onChange([...questions, blankQuestion(type)])
 
   const update = (id: string, patch: Partial<Question>) =>
     onChange(questions.map((q) => (q.id === id ? { ...q, ...patch } : q)))
@@ -36,26 +26,24 @@ export default function QuestionsEditor({ questions, onChange }: QuestionsEditor
   return (
     <section className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pb-3">
-        <h2 className="font-display text-[22px] font-medium tracking-[-0.02em] text-zinc-900">
+        <h2 className="font-display text-[19px] font-medium tracking-[-0.02em] text-zinc-900 sm:text-[22px]">
           Questions
         </h2>
         <span className="hidden text-[14px] text-zinc-400 sm:inline">
-          what you want to know
+          what you want to know about it
         </span>
-        <div className="ml-auto">
-          <AddQuestionMenu onAdd={addQuestion} />
-        </div>
+        {questions.length > 0 && (
+          <div className="ml-auto">
+            <AddQuestionMenu onAdd={addQuestion} />
+          </div>
+        )}
       </div>
 
       <div className="flex-1 space-y-3">
         {questions.length === 0 && (
-          <div className="flex min-h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-300 text-center">
-            <p className="text-[15px] text-zinc-400">
-              No questions yet — add one, or pick an example above.
-            </p>
-            <div className="mt-4">
-              <AddQuestionMenu onAdd={addQuestion} />
-            </div>
+          <div className="min-h-[190px] sm:min-h-[240px]">
+            <p className="pb-3 text-[14px] text-zinc-500">Pick what kind of answer you want:</p>
+            <TypePicker onAdd={addQuestion} />
           </div>
         )}
 
@@ -65,13 +53,12 @@ export default function QuestionsEditor({ questions, onChange }: QuestionsEditor
             question={q}
             onUpdate={(patch) => update(q.id, patch)}
             onRemove={() => remove(q.id)}
-            onChangeType={(t) =>
-              update(q.id, {
-                type: t,
-                ...(t === 'score' ? { rubric: q.rubric ?? '', maxScore: q.maxScore ?? 10 } : {}),
-                ...(t === 'choice' ? { options: q.options?.length ? q.options : ['', ''] } : {}),
-              })
-            }
+            onChangeType={(t) => {
+              // Switching type discards the old shape: a level scale and a set
+              // of options do not translate into one another.
+              const fresh = blankQuestion(t)
+              update(q.id, { type: t, options: fresh.options, levels: fresh.levels })
+            }}
           />
         ))}
       </div>
@@ -98,7 +85,7 @@ function AddQuestionMenu({ onAdd }: { onAdd: (t: PrimitiveType) => void }) {
           <div className="absolute right-0 z-40 mt-2 w-[330px] overflow-hidden rounded-2xl border border-zinc-300 bg-white p-2 shadow-xl shadow-zinc-900/10">
             <div className="flex items-center gap-2 px-2.5 pt-1.5 pb-2.5">
               <span className="font-mono text-[10.5px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
-                Select primitive type
+                Select question type
               </span>
               <a
                 href="/docs"
@@ -121,11 +108,11 @@ function AddQuestionMenu({ onAdd }: { onAdd: (t: PrimitiveType) => void }) {
                   <div className="flex items-center gap-2">
                     <span className={cn('h-2 w-2 rounded-full', TYPE_DOT[t])} />
                     <span className="text-[14.5px] font-bold text-zinc-900">{meta.name}</span>
-                    <span className="text-[13px] text-zinc-400">{meta.tagline}</span>
+                    <span className="ml-auto font-mono text-[11px] text-zinc-400">
+                      {meta.answerShape}
+                    </span>
                   </div>
-                  <div className="mt-1 pl-4 font-mono text-[12px] text-zinc-400 italic">
-                    Example: {meta.example}
-                  </div>
+                  <div className="mt-1 pl-4 text-[12.5px] text-zinc-400">{meta.tagline}</div>
                 </button>
               )
             })}
@@ -146,7 +133,7 @@ interface QuestionCardProps {
 }
 
 const inputCls =
-  'w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-zinc-800 outline-none transition-colors placeholder:text-zinc-300 focus:border-zinc-900'
+  'w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-3 sm:py-2.5 text-zinc-800 outline-none transition-colors placeholder:text-zinc-300 focus:border-zinc-900'
 
 function QuestionCard({ question: q, onUpdate, onRemove, onChangeType }: QuestionCardProps) {
   return (
@@ -176,80 +163,146 @@ function QuestionCard({ question: q, onUpdate, onRemove, onChangeType }: Questio
       </div>
 
       <input
-        value={q.question}
-        onChange={(e) => onUpdate({ question: e.target.value })}
-        aria-label="Question"
-        placeholder={
-          q.type === 'noul'
-            ? 'Is `food` a sandwich?'
-            : q.type === 'score'
-              ? 'How much did `subject` contribute?'
-              : 'What color is `object`?'
-        }
-        className={cn(inputCls, 'mt-3 font-mono text-[14.5px]')}
+        value={q.instructions}
+        onChange={(e) => onUpdate({ instructions: e.target.value })}
+        aria-label="Instructions"
+        placeholder={PRIMITIVE_META[q.type].example}
+        className={cn(inputCls, 'mt-3 text-[14.5px]')}
       />
 
-      {q.type === 'score' && (
-        <div className="mt-2.5 flex gap-2">
-          <input
-            value={q.rubric ?? ''}
-            onChange={(e) => onUpdate({ rubric: e.target.value })}
-            aria-label="Rubric"
-            placeholder="Rubric — e.g. clarity, depth, originality"
-            className={cn(inputCls, 'min-w-0 flex-1 text-[13.5px]')}
-          />
-          <input
-            type="number"
-            min={1}
-            max={100}
-            title="Max score"
-            aria-label="Max score"
-            value={q.maxScore ?? 10}
-            onChange={(e) => onUpdate({ maxScore: Math.max(1, Number(e.target.value) || 10) })}
-            className={cn(inputCls, 'w-16 px-2 text-center font-mono text-[13.5px]')}
-          />
-        </div>
+      {q.type === 'noul' && (
+        <p className="mt-2.5 text-[12.5px] leading-relaxed text-zinc-400">
+          Write it as a statement, not a question. You get back how likely it is true — 0 to 1.
+        </p>
       )}
 
-      {q.type === 'choice' && (
-        <div className="mt-2.5 space-y-2">
-          {(q.options ?? []).map((opt, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <span className="w-4 shrink-0 text-center font-mono text-[11.5px] text-zinc-300">
-                {String.fromCharCode(65 + i)}
-              </span>
-              <input
-                value={opt}
-                onChange={(e) => {
-                  const next = [...(q.options ?? [])]
-                  next[i] = e.target.value
-                  onUpdate({ options: next })
-                }}
-                aria-label={`Option ${String.fromCharCode(65 + i)}`}
-                placeholder={`Option ${String.fromCharCode(65 + i)}`}
-                className={cn(inputCls, 'min-w-0 flex-1 py-2 text-[13.5px]')}
-              />
-              {(q.options?.length ?? 0) > 2 && (
-                <button
-                  onClick={() => onUpdate({ options: (q.options ?? []).filter((_, j) => j !== i) })}
-                  aria-label={`Remove option ${String.fromCharCode(65 + i)}`}
-                  className="rounded p-1 text-zinc-300 hover:text-zinc-700"
-                >
-                  <X className="h-3.5 w-3.5" strokeWidth={2} />
-                </button>
-              )}
-            </div>
-          ))}
-          {(q.options?.length ?? 0) < 6 && (
-            <button
-              onClick={() => onUpdate({ options: [...(q.options ?? []), ''] })}
-              className="pl-6 text-[12.5px] font-medium text-zinc-400 hover:text-zinc-900"
-            >
-              + Add option
-            </button>
-          )}
-        </div>
+      {q.type === 'score' && <LevelsEditor q={q} onUpdate={onUpdate} />}
+      {q.type === 'choice' && <OptionsEditor q={q} onUpdate={onUpdate} />}
+    </div>
+  )
+}
+
+/* ---------------------------------------------------------------- */
+
+/** Score levels are ordered lowest to highest — that order defines the scale. */
+function LevelsEditor({ q, onUpdate }: { q: Question; onUpdate: (p: Partial<Question>) => void }) {
+  const levels = q.levels ?? []
+
+  return (
+    <div className="mt-3">
+      <span className="font-mono text-[10.5px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
+        Levels — low to high
+      </span>
+
+      <div className="mt-2 space-y-2">
+        {levels.map((level, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="w-5 shrink-0 text-center font-mono text-[11.5px] text-zinc-400">
+              {i}
+            </span>
+            <input
+              value={level}
+              onChange={(e) =>
+                onUpdate({ levels: levels.map((l, j) => (i === j ? e.target.value : l)) })
+              }
+              aria-label={`Level ${i}`}
+              placeholder={
+                i === 0
+                  ? 'Lowest — e.g. no impact'
+                  : i === levels.length - 1
+                    ? 'Highest — e.g. blocking issue'
+                    : 'In between'
+              }
+              className={cn(inputCls, 'min-w-0 flex-1 py-2 text-[13.5px]')}
+            />
+            {levels.length > 2 && (
+              <button
+                onClick={() => onUpdate({ levels: levels.filter((_, j) => j !== i) })}
+                aria-label={`Remove level ${i}`}
+                className="rounded p-1 text-zinc-300 hover:text-zinc-700"
+              >
+                <X className="h-3.5 w-3.5" strokeWidth={2} />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {levels.length < 8 && (
+        <button
+          onClick={() => onUpdate({ levels: [...levels, ''] })}
+          className="mt-2 pl-7 text-[12.5px] font-medium text-zinc-400 hover:text-zinc-900"
+        >
+          + Add level
+        </button>
       )}
+
+      <p className="mt-2.5 text-[12.5px] leading-relaxed text-zinc-400">
+        You get a number on this scale — 1.4 sits between level 1 and level 2.
+      </p>
+    </div>
+  )
+}
+
+/* ---------------------------------------------------------------- */
+
+/** Each Choice option carries a description — that is what the model reads. */
+function OptionsEditor({ q, onUpdate }: { q: Question; onUpdate: (p: Partial<Question>) => void }) {
+  const options = q.options ?? []
+  const set = (i: number, patch: Partial<{ key: string; description: string }>) =>
+    onUpdate({ options: options.map((o, j) => (i === j ? { ...o, ...patch } : o)) })
+
+  return (
+    <div className="mt-3">
+      <span className="font-mono text-[10.5px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
+        Options
+      </span>
+
+      <div className="mt-2 space-y-2.5">
+        {options.map((opt, i) => (
+          <div key={i} className="flex items-start gap-2">
+            <GripVertical className="mt-2.5 h-3.5 w-3.5 shrink-0 text-zinc-200" strokeWidth={2} />
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <input
+                value={opt.key}
+                onChange={(e) => set(i, { key: e.target.value })}
+                aria-label={`Option ${i + 1} name`}
+                placeholder="billing"
+                className={cn(inputCls, 'py-2 font-mono text-[13.5px] font-medium')}
+              />
+              <input
+                value={opt.description}
+                onChange={(e) => set(i, { description: e.target.value })}
+                aria-label={`Option ${i + 1} description`}
+                placeholder="Payment or subscription issues"
+                className={cn(inputCls, 'py-2 text-[13px]')}
+              />
+            </div>
+            {options.length > 2 && (
+              <button
+                onClick={() => onUpdate({ options: options.filter((_, j) => j !== i) })}
+                aria-label={`Remove option ${i + 1}`}
+                className="mt-2 rounded p-1 text-zinc-300 hover:text-zinc-700"
+              >
+                <X className="h-3.5 w-3.5" strokeWidth={2} />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {options.length < 8 && (
+        <button
+          onClick={() => onUpdate({ options: [...options, { key: '', description: '' }] })}
+          className="mt-2 pl-6 text-[12.5px] font-medium text-zinc-400 hover:text-zinc-900"
+        >
+          + Add option
+        </button>
+      )}
+
+      <p className="mt-2.5 text-[12.5px] leading-relaxed text-zinc-400">
+        The description is what the model reads — say what each option covers.
+      </p>
     </div>
   )
 }

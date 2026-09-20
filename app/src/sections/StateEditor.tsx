@@ -60,6 +60,27 @@ export default function StateEditor({ value, onChange }: StateEditorProps) {
   const [mode, setMode] = useState<Mode>('form')
 
   const fields = useMemo(() => stateToFields(value), [value])
+
+  /**
+   * A row the user just added has no key yet, and a JSON object cannot hold a
+   * keyless entry — serializing would drop it and the row would vanish on the
+   * next render. So the form view keeps its own rows and only writes the named
+   * ones back. Rows stay authoritative for as long as they still serialize to
+   * the incoming JSON; when that stops being true the value changed elsewhere
+   * (a preset, the JSON tab) and we resync from it.
+   */
+  const [rows, setRows] = useState<StateField[]>(() => fields ?? [])
+
+  const rowsMatchValue = useMemo(
+    () => (fields === null ? false : fieldsToState(rows) === value),
+    [rows, value, fields],
+  )
+  const visibleRows = rowsMatchValue ? rows : (fields ?? [])
+
+  const writeRows = (next: StateField[]) => {
+    setRows(next)
+    onChange(fieldsToState(next))
+  }
   const valid = useMemo(() => {
     if (!value.trim()) return null
     try {
@@ -74,16 +95,14 @@ export default function StateEditor({ value, onChange }: StateEditorProps) {
   const formAvailable = fields !== null
   const effectiveMode: Mode = formAvailable ? mode : 'json'
 
-  const writeFields = (next: StateField[]) => onChange(fieldsToState(next))
-
   return (
     <section className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pb-3">
-        <h2 className="font-display text-[22px] font-medium tracking-[-0.02em] text-zinc-900">
+        <h2 className="font-display text-[19px] font-medium tracking-[-0.02em] text-zinc-900 sm:text-[22px]">
           Context
         </h2>
         <span className="hidden text-[14px] text-zinc-400 sm:inline">
-          the situation to reason over
+          the facts to judge — one per row
         </span>
 
         <div className="ml-auto flex items-center gap-2.5">
@@ -103,7 +122,7 @@ export default function StateEditor({ value, onChange }: StateEditorProps) {
       </div>
 
       {effectiveMode === 'form' ? (
-        <FieldsView fields={fields ?? []} onChange={writeFields} />
+        <FieldsView fields={visibleRows} onChange={writeRows} />
       ) : (
         <>
           <JsonView value={value} onChange={onChange} />
@@ -165,7 +184,7 @@ function ModeToggle({
 /* ---------------------------------------------------------------- */
 
 const cellCls =
-  'w-full bg-transparent px-4 py-3.5 text-[15px] text-zinc-800 outline-none placeholder:text-zinc-300'
+  'w-full bg-transparent px-3.5 py-3 text-[14.5px] sm:px-4 sm:py-3.5 sm:text-[15px] text-zinc-800 outline-none placeholder:text-zinc-300'
 
 function FieldsView({
   fields,
@@ -181,7 +200,7 @@ function FieldsView({
   const remove = (i: number) => onChange(fields.filter((_, j) => j !== i))
 
   return (
-    <div className="flex min-h-[260px] flex-1 flex-col overflow-hidden rounded-xl border border-zinc-300 bg-white">
+    <div className="flex min-h-[190px] flex-1 flex-col overflow-hidden rounded-xl border border-zinc-300 bg-white sm:min-h-[240px]">
       <div className="flex items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-4 py-2">
         <span className="flex-1 font-mono text-[10.5px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
           Field
@@ -193,8 +212,8 @@ function FieldsView({
       </div>
 
       {fields.length === 0 && (
-        <p className="flex flex-1 items-center justify-center px-4 py-10 text-center text-[15px] text-zinc-400">
-          No context yet — add a field, or pick an example above.
+        <p className="flex flex-1 items-center justify-center px-4 py-8 text-center text-[14.5px] text-zinc-400 sm:text-[15px]">
+          No facts yet — add a field, or pick an example above.
         </p>
       )}
 
@@ -248,7 +267,7 @@ function JsonView({ value, onChange }: { value: string; onChange: (v: string) =>
   const rows = Math.max(value.split('\n').length, 9)
 
   return (
-    <div className="relative min-h-[260px] flex-1 overflow-hidden rounded-xl border border-zinc-300 bg-white transition-colors focus-within:border-zinc-900">
+    <div className="relative min-h-[190px] flex-1 overflow-hidden rounded-xl border border-zinc-300 bg-white sm:min-h-[240px] transition-colors focus-within:border-zinc-900">
       {/* gutter */}
       <div
         aria-hidden
@@ -264,7 +283,7 @@ function JsonView({ value, onChange }: { value: string; onChange: (v: string) =>
       {/* highlight layer */}
       <pre
         aria-hidden
-        className="pointer-events-none min-h-[260px] overflow-hidden pt-4 pr-4 pb-4 pl-14 font-mono text-[14px] leading-[1.85rem] break-words whitespace-pre-wrap text-zinc-800"
+        className="pointer-events-none min-h-[190px] overflow-hidden pt-4 sm:min-h-[240px] pr-4 pb-4 pl-14 font-mono text-[14px] leading-[1.85rem] break-words whitespace-pre-wrap text-zinc-800"
       >
         {highlight(value)}
         {'\n'}
