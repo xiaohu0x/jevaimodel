@@ -8,7 +8,6 @@ import OutputPanel from '@/sections/OutputPanel'
 import Content from '@/sections/Content'
 import Footer from '@/sections/Footer'
 import LoginDialog from '@/sections/LoginDialog'
-import DocsDialog from '@/sections/DocsDialog'
 import {
   DEFAULT_STATE,
   classify,
@@ -29,7 +28,6 @@ export default function Home() {
   const [running, setRunning] = useState(false)
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const [loginOpen, setLoginOpen] = useState(false)
-  const [docsOpen, setDocsOpen] = useState(false)
   const [shared, setShared] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
 
@@ -110,7 +108,6 @@ export default function Home() {
         user={account.user}
         onSignIn={() => setLoginOpen(true)}
         onSignOut={account.signOut}
-        onDocs={() => setDocsOpen(true)}
         onShare={handleShare}
         shared={shared}
       />
@@ -205,8 +202,6 @@ export default function Home() {
           account.signInWithGoogle()
         }}
       />
-
-      <DocsDialog open={docsOpen} onClose={() => setDocsOpen(false)} />
     </div>
   )
 }

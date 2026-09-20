@@ -1,4 +1,5 @@
 import { BookOpen, LogOut } from 'lucide-react'
+import { Link } from 'react-router'
 import type { AccountUser } from '@/lib/useAccount'
 import { BrandMark } from '@/sections/Illustrations'
 
@@ -6,7 +7,6 @@ interface HeaderProps {
   user: AccountUser | null
   onSignIn: () => void
   onSignOut: () => void
-  onDocs: () => void
   onShare: () => void
   shared: boolean
 }
@@ -15,7 +15,6 @@ export default function Header({
   user,
   onSignIn,
   onSignOut,
-  onDocs,
   onShare,
   shared,
 }: HeaderProps) {
@@ -32,13 +31,13 @@ export default function Header({
         </div>
 
         <div className="ml-auto flex items-center gap-1">
-          <button
-            onClick={onDocs}
+          <Link
+            to="/docs"
             className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-zinc-500 transition-colors hover:bg-zinc-900/[0.05] hover:text-zinc-900"
           >
             <BookOpen className="h-3.5 w-3.5" strokeWidth={1.8} />
             <span className="hidden sm:inline">How it works</span>
-          </button>
+          </Link>
 
           <button
             onClick={onShare}

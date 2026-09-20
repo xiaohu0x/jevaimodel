@@ -2,17 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://jevaimodel.app/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-09-20</lastmod>
+  </url>
+  <url>
+    <loc>https://jevaimodel.app/docs</loc>
+    <lastmod>2026-09-20</lastmod>
+  </url>
+  <url>
+    <loc>https://jevaimodel.app/use-cases</loc>
+    <lastmod>2026-09-20</lastmod>
+  </url>
+  <url>
+    <loc>https://jevaimodel.app/examples</loc>
+    <lastmod>2026-09-20</lastmod>
   </url>
   <url>
     <loc>https://jevaimodel.app/privacy</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <lastmod>2026-09-20</lastmod>
   </url>
   <url>
     <loc>https://jevaimodel.app/terms</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <lastmod>2026-09-20</lastmod>
   </url>
 </urlset>

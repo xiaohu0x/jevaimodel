@@ -3,8 +3,9 @@ import { Link } from 'react-router'
 
 const LINKS = [
   { href: '#playground', label: 'Open the playground' },
-  { href: '#how-it-works', label: 'How it works' },
-  { href: '#use-cases', label: 'Use cases' },
+  { href: '/docs', label: 'Documentation' },
+  { href: '/use-cases', label: 'Use cases' },
+  { href: '/examples', label: 'Examples' },
   { href: '#faq', label: 'FAQ' },
 ]
 

@@ -97,8 +97,7 @@ function AddQuestionMenu({ onAdd }: { onAdd: (t: PrimitiveType) => void }) {
                 Select primitive type
               </span>
               <a
-                href="#"
-                onClick={(e) => e.preventDefault()}
+                href="/docs"
                 className="ml-auto text-[10.5px] font-medium text-zinc-400 underline underline-offset-2 hover:text-zinc-700"
               >
                 Docs

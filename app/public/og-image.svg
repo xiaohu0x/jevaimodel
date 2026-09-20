@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">JEV AI Model</title>
+  <desc id="desc">A free AI classifier playground that turns JSON state into typed answers.</desc>
+  <rect width="1200" height="630" fill="#fefefe"/>
+  <rect x="36" y="36" width="1128" height="558" rx="8" fill="#ffffff" stroke="#dedee3" stroke-width="2"/>
+
+  <circle cx="94" cy="92" r="28" fill="#e551ba"/>
+  <path d="M102 77v19a8 8 0 0 1-16 0" fill="none" stroke="#171717" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="138" y="101" fill="#18181b" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700">JEV AI Model</text>
+  <text x="1106" y="100" fill="#71717a" font-family="Arial, Helvetica, sans-serif" font-size="18" text-anchor="end">jevaimodel.app</text>
+
+  <text x="78" y="190" fill="#e551ba" font-family="Courier New, monospace" font-size="15" font-weight="700">AI CLASSIFIER PLAYGROUND</text>
+  <text x="78" y="252" fill="#18181b" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700">JSON context in.</text>
+  <text x="78" y="312" fill="#18181b" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700">Typed answers out.</text>
+  <text x="78" y="365" fill="#52525b" font-family="Arial, Helvetica, sans-serif" font-size="21">True or false, rubric scores, and multiple choice</text>
+  <text x="78" y="395" fill="#52525b" font-family="Arial, Helvetica, sans-serif" font-size="21">with confidence and rationale for every result.</text>
+
+  <rect x="78" y="451" width="104" height="35" rx="7" fill="#fce7f5"/>
+  <text x="130" y="474" fill="#a61e80" font-family="Courier New, monospace" font-size="14" font-weight="700" text-anchor="middle">NOUL</text>
+  <rect x="194" y="451" width="104" height="35" rx="7" fill="#dcfce7"/>
+  <text x="246" y="474" fill="#166534" font-family="Courier New, monospace" font-size="14" font-weight="700" text-anchor="middle">SCORE</text>
+  <rect x="310" y="451" width="104" height="35" rx="7" fill="#fef3c7"/>
+  <text x="362" y="474" fill="#92400e" font-family="Courier New, monospace" font-size="14" font-weight="700" text-anchor="middle">CHOICE</text>
+  <text x="78" y="542" fill="#71717a" font-family="Arial, Helvetica, sans-serif" font-size="17">Free in your browser · No API key · No setup</text>
+
+  <rect x="665" y="151" width="445" height="166" rx="8" fill="#fafafa" stroke="#d4d4d8" stroke-width="2"/>
+  <text x="691" y="184" fill="#71717a" font-family="Courier New, monospace" font-size="13" font-weight="700">STATE.JSON</text>
+  <line x1="691" y1="198" x2="1084" y2="198" stroke="#e4e4e7"/>
+  <text x="691" y="231" fill="#3f3f46" font-family="Courier New, monospace" font-size="17">{</text>
+  <text x="714" y="260" fill="#18181b" font-family="Courier New, monospace" font-size="17">"food":</text>
+  <text x="800" y="260" fill="#067a71" font-family="Courier New, monospace" font-size="17">"hotdog"</text>
+  <text x="691" y="289" fill="#3f3f46" font-family="Courier New, monospace" font-size="17">}</text>
+
+  <rect x="665" y="337" width="445" height="205" rx="8" fill="#18181b"/>
+  <text x="691" y="372" fill="#a1a1aa" font-family="Courier New, monospace" font-size="13" font-weight="700">TYPED RESULT</text>
+  <line x1="691" y1="387" x2="1084" y2="387" stroke="#3f3f46"/>
+  <circle cx="711" cy="429" r="10" fill="#22c55e"/>
+  <path d="M706 429l4 4 7-9" fill="none" stroke="#052e16" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="735" y="438" fill="#fafafa" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="700">True</text>
+  <text x="1069" y="435" fill="#a1a1aa" font-family="Courier New, monospace" font-size="15" text-anchor="end">94.2% CONF.</text>
+  <text x="691" y="480" fill="#d4d4d8" font-family="Arial, Helvetica, sans-serif" font-size="16">The state supports the proposition,</text>
+  <text x="691" y="506" fill="#d4d4d8" font-family="Arial, Helvetica, sans-serif" font-size="16">anchored on the supplied food key.</text>
+</svg>

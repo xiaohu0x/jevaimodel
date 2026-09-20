@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { ArrowLeft, ShieldCheck, Trash2, X } from 'lucide-react'
 import { Link } from 'react-router'
 import { useAccount } from '@/lib/useAccount'
@@ -15,14 +15,6 @@ function LegalShell({
   summary: string
   children: ReactNode
 }) {
-  useEffect(() => {
-    const previous = document.title
-    document.title = `${title} | JEV AI Model`
-    return () => {
-      document.title = previous
-    }
-  }, [title])
-
   return (
     <div className="min-h-screen bg-[#FEFEFE] text-zinc-900 antialiased">
       <header className="border-b border-zinc-200 bg-white/80">

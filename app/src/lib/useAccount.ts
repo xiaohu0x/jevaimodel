@@ -17,6 +17,7 @@ export interface AccountUser {
 }
 
 function readCredits(): number {
+  if (typeof window === 'undefined') return DEFAULT_CREDITS
   try {
     const raw = localStorage.getItem(CREDITS_KEY)
     if (raw === null) return DEFAULT_CREDITS

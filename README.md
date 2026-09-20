@@ -23,13 +23,13 @@ A free, browser-based AI classifier playground: describe a situation as JSON **s
                       ┌──────────────────────────────┐
 jevaimodel.app  ─────▶│  Worker  jev-edge            │
 www.jevaimodel.app    │  (route: zone/*)             │
-                      │   www → 301 apex             │
+                      │   HTTP/www → 301 HTTPS apex  │
                       └───────────────┬──────────────┘
                                       │ proxy
                                       ▼
                       ┌──────────────────────────────┐
                       │  Pages  jev-ai-model         │
-                      │  static SPA + /api/auth/*    │
+                      │  prerendered React + API     │
                       └───────────────┬──────────────┘
                                       │ binding DB
                                       ▼
@@ -43,7 +43,8 @@ www.jevaimodel.app    │  (route: zone/*)             │
 same Cloudflare account, but the zone already had a DNS record pointing at an older deployment.
 Wrangler's OAuth login does not include DNS permissions, so the domain is bound with a **Worker
 route** instead — Cloudflare routes `jevaimodel.app/*` to `jev-edge` before the origin is
-contacted, so no DNS change is required. It also folds `www` into the apex with a 301.
+contacted, so no DNS change is required. It also canonicalizes HTTP, `www`, and public trailing-slash
+URLs before proxying the request to Pages.
 
 ---
 
@@ -136,7 +137,14 @@ the sign-in dialog. Security reports use `/.well-known/security.txt`.
 
 ## SEO
 
-- Static meta (title / description / canonical / OG / Twitter) + JSON-LD (`WebSite`,
-  `SoftwareApplication`, `FAQPage`) in `app/index.html`.
-- Long-form on-page content (~1.4k words) in `app/src/sections/Content.tsx`.
-- `app/public/robots.txt`, `app/public/sitemap.xml`, `app/public/site.webmanifest`.
+- `npm run build` creates the client bundle, an SSR bundle, and prerendered HTML for `/`, `/docs`,
+  `/use-cases`, `/examples`, `/privacy`, and `/terms`.
+- Route metadata and JSON-LD live in `app/src/lib/seo.ts`; the same source drives prerendering and
+  client-side navigation updates.
+- A top-level prerendered `404.html` makes unknown Pages routes return a real HTTP 404 instead of the
+  SPA homepage fallback.
+- Canonical host/scheme/path redirects are enforced by both the Pages middleware and edge Worker.
+- `app/public/robots.txt`, `app/public/sitemap.xml`, `app/public/_headers`, and the 1200x630 social
+  image are copied into every production build.
+- `npm run test:seo` rebuilds and checks route HTML, canonical URLs, structured data, sitemap,
+  robots directives, social-image dimensions, 404 behavior, and edge redirects.

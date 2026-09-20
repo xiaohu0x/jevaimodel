@@ -21,7 +21,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/components/ui/**/*.{ts,tsx}'],
+    files: ['src/components/ui/**/*.{ts,tsx}', 'src/entry-server.tsx'],
     rules: {
       // shadcn modules intentionally export variants alongside their components.
       'react-refresh/only-export-components': 'off',
