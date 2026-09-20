@@ -1,0 +1,12 @@
+name = "jev-edge"
+main = "index.js"
+compatibility_date = "2025-06-01"
+
+# Bind the apex + www to this Worker (no DNS changes required).
+[[routes]]
+pattern = "jevaimodel.app/*"
+zone_name = "jevaimodel.app"
+
+[[routes]]
+pattern = "www.jevaimodel.app/*"
+zone_name = "jevaimodel.app"

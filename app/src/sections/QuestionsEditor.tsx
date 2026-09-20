@@ -1,18 +1,13 @@
 import { useState } from 'react'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import {
   PRIMITIVE_META,
   type PrimitiveType,
   type Question,
   uid,
 } from '@/lib/engine'
+import { TYPE_DOT } from '@/lib/type-style'
 import { cn } from '@/lib/utils'
-
-const TYPE_TEXT: Record<PrimitiveType, string> = {
-  noul: 'text-emerald-700',
-  score: 'text-amber-700',
-  choice: 'text-sky-700',
-}
 
 interface QuestionsEditorProps {
   questions: Question[]
@@ -39,18 +34,21 @@ export default function QuestionsEditor({ questions, onChange }: QuestionsEditor
   const remove = (id: string) => onChange(questions.filter((q) => q.id !== id))
 
   return (
-    <section className="flex min-h-0 flex-[1.2] flex-col">
-      <div className="flex items-baseline gap-2 px-0.5 pb-2">
-        <h2 className="eyebrow">QUESTIONS</h2>
+    <section className="flex min-h-0 flex-col">
+      <div className="flex items-center gap-2 pb-2.5">
+        <h2 className="text-[13px] font-semibold text-zinc-900">Questions</h2>
+        <span className="hidden text-[11px] text-zinc-400 sm:inline">
+          one call, several typed reads
+        </span>
         <div className="ml-auto">
           <AddQuestionMenu onAdd={addQuestion} />
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5 pb-1">
+      <div className="space-y-2.5">
         {questions.length === 0 && (
-          <div className="flex h-full min-h-[140px] flex-col items-center justify-center rounded-lg border border-dashed border-zinc-200 text-center">
-            <p className="text-[12px] text-zinc-400">No questions yet — add one, or load a lesson.</p>
+          <div className="flex min-h-[120px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-300 text-center">
+            <p className="text-[12px] text-zinc-400">No questions yet.</p>
             <div className="mt-3">
               <AddQuestionMenu onAdd={addQuestion} />
             </div>
@@ -85,15 +83,27 @@ function AddQuestionMenu({ onAdd }: { onAdd: (t: PrimitiveType) => void }) {
     <div className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1 text-[12px] font-medium text-zinc-500 hover:text-zinc-900"
+        className="flex items-center gap-1.5 rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-[12px] font-semibold text-zinc-700 transition-colors hover:border-zinc-400 hover:text-zinc-900"
       >
-        <Plus className={cn('h-3.5 w-3.5 transition-transform', open && 'rotate-45')} strokeWidth={2} />
+        <Plus className={cn('h-3.5 w-3.5 transition-transform', open && 'rotate-45')} strokeWidth={2.2} />
         Add
       </button>
       {open && (
         <>
           <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-40 mt-2 w-[264px] overflow-hidden rounded-lg border border-zinc-200 bg-white p-1 shadow-lg shadow-zinc-900/5">
+          <div className="absolute right-0 z-40 mt-2 w-[290px] overflow-hidden rounded-2xl border border-zinc-200 bg-white p-1.5 shadow-xl shadow-zinc-900/10">
+            <div className="flex items-center gap-2 px-2.5 pt-1.5 pb-2">
+              <span className="text-[10px] font-semibold tracking-[0.14em] text-zinc-400 uppercase">
+                Select primitive type
+              </span>
+              <a
+                href="#"
+                onClick={(e) => e.preventDefault()}
+                className="ml-auto text-[10.5px] font-medium text-zinc-400 underline underline-offset-2 hover:text-zinc-700"
+              >
+                Docs
+              </a>
+            </div>
             {(Object.keys(PRIMITIVE_META) as PrimitiveType[]).map((t) => {
               const meta = PRIMITIVE_META[t]
               return (
@@ -103,14 +113,15 @@ function AddQuestionMenu({ onAdd }: { onAdd: (t: PrimitiveType) => void }) {
                     onAdd(t)
                     setOpen(false)
                   }}
-                  className="w-full rounded-md px-2.5 py-2 text-left hover:bg-zinc-50"
+                  className="w-full rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-zinc-50"
                 >
-                  <div className="flex items-baseline gap-2">
-                    <span className={cn('text-[12.5px] font-bold', TYPE_TEXT[t])}>{meta.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={cn('h-2 w-2 rounded-full', TYPE_DOT[t])} />
+                    <span className="text-[12.5px] font-bold text-zinc-800">{meta.name}</span>
                     <span className="text-[11px] text-zinc-400">{meta.tagline}</span>
                   </div>
-                  <div className="mt-0.5 font-mono text-[10px] text-zinc-400 italic">
-                    {meta.example}
+                  <div className="mt-1 pl-4 font-mono text-[10.5px] text-zinc-400 italic">
+                    Example: {meta.example}
                   </div>
                 </button>
               )
@@ -132,19 +143,16 @@ interface QuestionCardProps {
 }
 
 const inputCls =
-  'w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-zinc-800 outline-none transition-colors placeholder:text-zinc-300 focus:border-zinc-400'
+  'w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-zinc-800 outline-none transition-colors placeholder:text-zinc-300 focus:border-zinc-400'
 
 function QuestionCard({ question: q, onUpdate, onRemove, onChangeType }: QuestionCardProps) {
   return (
-    <div className="group/card rounded-lg border border-zinc-200 bg-white p-3">
+    <div className="group/card rounded-xl border border-zinc-200 bg-white p-3 transition-colors hover:border-zinc-300">
       <div className="flex items-center gap-2">
         <select
           value={q.type}
           onChange={(e) => onChangeType(e.target.value as PrimitiveType)}
-          className={cn(
-            'cursor-pointer appearance-none bg-transparent text-[11px] font-bold tracking-wide uppercase outline-none',
-            TYPE_TEXT[q.type],
-          )}
+          className="cursor-pointer appearance-none rounded-full bg-zinc-900 px-2.5 py-1 text-[10px] font-bold tracking-[0.06em] text-white uppercase outline-none"
         >
           {(Object.keys(PRIMITIVE_META) as PrimitiveType[]).map((t) => (
             <option key={t} value={t}>
@@ -156,9 +164,9 @@ function QuestionCard({ question: q, onUpdate, onRemove, onChangeType }: Questio
         <button
           onClick={onRemove}
           title="Remove question"
-          className="ml-auto rounded p-1 text-zinc-300 opacity-0 transition-opacity group-hover/card:opacity-100 hover:text-zinc-500"
+          className="ml-auto rounded-md p-1 text-zinc-300 opacity-0 transition-opacity group-hover/card:opacity-100 hover:text-zinc-600"
         >
-          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
+          <X className="h-3.5 w-3.5" strokeWidth={2} />
         </button>
       </div>
 
@@ -172,11 +180,11 @@ function QuestionCard({ question: q, onUpdate, onRemove, onChangeType }: Questio
               ? 'How much did `subject` contribute?'
               : 'What color is `object`?'
         }
-        className={cn(inputCls, 'mt-1.5 font-mono text-[12px]')}
+        className={cn(inputCls, 'mt-2 font-mono text-[12.5px]')}
       />
 
       {q.type === 'score' && (
-        <div className="mt-1.5 flex gap-1.5">
+        <div className="mt-2 flex gap-2">
           <input
             value={q.rubric ?? ''}
             onChange={(e) => onUpdate({ rubric: e.target.value })}
@@ -196,9 +204,9 @@ function QuestionCard({ question: q, onUpdate, onRemove, onChangeType }: Questio
       )}
 
       {q.type === 'choice' && (
-        <div className="mt-1.5 space-y-1.5">
+        <div className="mt-2 space-y-1.5">
           {(q.options ?? []).map((opt, i) => (
-            <div key={i} className="flex items-center gap-1.5">
+            <div key={i} className="flex items-center gap-2">
               <span className="w-4 shrink-0 text-center font-mono text-[10px] text-zinc-300">
                 {String.fromCharCode(65 + i)}
               </span>
@@ -217,7 +225,7 @@ function QuestionCard({ question: q, onUpdate, onRemove, onChangeType }: Questio
                   onClick={() => onUpdate({ options: (q.options ?? []).filter((_, j) => j !== i) })}
                   className="rounded p-0.5 text-zinc-300 hover:text-zinc-500"
                 >
-                  <Trash2 className="h-3 w-3" strokeWidth={1.8} />
+                  <X className="h-3 w-3" strokeWidth={2} />
                 </button>
               )}
             </div>

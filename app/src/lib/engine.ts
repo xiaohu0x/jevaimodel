@@ -380,11 +380,22 @@ export const USE_CASES: Preset[] = [
 ]
 
 export const DEFAULT_STATE = JSON.stringify(
-  { example_state: 'Add context for Classify to evaluate' },
+  { example_state: 'Add context for JEV AI Model to evaluate' },
   null,
   2,
 )
 
 export function uid(): string {
   return Math.random().toString(36).slice(2, 10)
+}
+
+/** A fresh, empty question of the given primitive type. */
+export function blankQuestion(type: PrimitiveType = 'noul'): Question {
+  return {
+    id: uid(),
+    type,
+    question: '',
+    ...(type === 'score' ? { rubric: '', maxScore: 10 } : {}),
+    ...(type === 'choice' ? { options: ['', ''] } : {}),
+  }
 }

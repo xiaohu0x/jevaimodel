@@ -5,6 +5,53 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        /* TypeSafe AI palette — ink #1e1e1e on #fefefe, pink accent */
+        zinc: {
+          50: '#fbfbfb',
+          100: '#f5f5f5',
+          200: '#e6e6e6',
+          300: '#d6d6d6',
+          400: '#a8a8a8',
+          500: '#7d7d7d',
+          600: '#5c5c5c',
+          700: '#3f3f3f',
+          800: '#2b2b2b',
+          900: '#1e1e1e',
+          950: '#141414',
+        },
+        violet: {
+          300: '#f9c9d8',
+          400: '#f7a8bf',
+          500: '#f386a1',
+          600: '#e551ba',
+          700: '#d45bb6',
+        },
+        emerald: {
+          300: '#86dbd3',
+          400: '#4fc9bf',
+          500: '#09aea1',
+          600: '#089e92',
+          700: '#067a71',
+        },
+        amber: {
+          300: '#eec2e2',
+          400: '#e08ccb',
+          500: '#d45bb6',
+          600: '#b84a9d',
+          700: '#9a3d84',
+        },
+        sky: {
+          300: '#9fdcd6',
+          400: '#5cc6bd',
+          500: '#09aea1',
+          600: '#089e92',
+          700: '#0b6f68',
+        },
+        rose: {
+          400: '#f386a1',
+          500: '#e551ba',
+          600: '#d45bb6',
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

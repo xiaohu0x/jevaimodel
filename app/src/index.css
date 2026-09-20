@@ -80,9 +80,10 @@
     font-feature-settings: 'cv11', 'ss01', 'ss03';
     letter-spacing: -0.011em;
   }
-  .font-serif {
-    font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
-    font-optical-sizing: auto;
+  .font-display {
+    font-family: 'Host Grotesk', 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: 'ss01';
+    letter-spacing: -0.025em;
   }
   .font-mono {
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -94,30 +95,41 @@
   /* flat hairline card */
   .panel {
     background: #fff;
-    border: 1px solid rgba(24, 24, 27, 0.08);
+    border: 1px solid rgba(30, 30, 30, 0.1);
   }
   .panel-hover {
     transition: border-color 0.15s ease;
   }
   .panel-hover:hover {
-    border-color: rgba(24, 24, 27, 0.2);
+    border-color: rgba(30, 30, 30, 0.28);
   }
   /* ink button — flat */
   .btn-ink {
-    background: #18181b;
-    color: #fafafa;
+    background: #1e1e1e;
+    color: #fefefe;
     transition: background 0.15s ease;
   }
   .btn-ink:hover {
-    background: #3f3f46;
+    background: #3f3f3f;
   }
-  /* micro label */
+  /* micro label — terminal style */
   .eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    color: #a1a1aa;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(30, 30, 30, 0.45);
   }
+}
+
+/* hide scrollbar for horizontal chip rows */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* slim scrollbars */

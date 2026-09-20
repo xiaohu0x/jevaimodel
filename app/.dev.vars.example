@@ -1,0 +1,10 @@
+# Local secrets for `npm run cf:dev` (never commit the real .dev.vars).
+#
+# Create an OAuth 2.0 Client ID (type: Web application) at
+# https://console.cloud.google.com/apis/credentials
+# Authorised redirect URIs to add:
+#   http://localhost:8788/api/auth/callback
+#   https://jevaimodel.app/api/auth/callback
+#
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""

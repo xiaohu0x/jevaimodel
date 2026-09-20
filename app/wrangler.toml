@@ -1,0 +1,13 @@
+name = "jev-ai-model"
+pages_build_output_dir = "./dist"
+compatibility_date = "2025-06-01"
+
+# Public origin used to build OAuth redirect URIs
+[vars]
+PUBLIC_ORIGIN = "https://jevaimodel.app"
+
+# D1 — stores Google accounts and login sessions
+[[d1_databases]]
+binding = "DB"
+database_name = "jev-ai-model-db"
+database_id = "d390bc6b-ebf5-41fd-8d4d-3d75fd5fe31f"

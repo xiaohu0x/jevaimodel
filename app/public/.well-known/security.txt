@@ -1,0 +1,5 @@
+Contact: https://github.com/xiaohu0x/jevaimodel/issues/new
+Expires: 2027-09-20T00:00:00Z
+Preferred-Languages: en, zh
+Canonical: https://jevaimodel.app/.well-known/security.txt
+Policy: https://jevaimodel.app/privacy

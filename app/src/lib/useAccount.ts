@@ -1,20 +1,19 @@
 import { useCallback, useEffect, useState } from 'react'
 
 /**
- * Credits live entirely behind the scenes:
- * every visitor starts with 100 credits, one run costs 20.
- * The UI never exposes the credit balance — when credits run out,
- * the run action simply asks the user to sign in.
+ * Auth is real: Google sign-in handled by Cloudflare Pages Functions and stored in D1.
+ * Credits stay a soft, invisible gate for guests — one run costs 20, guests start with 100.
  */
 const DEFAULT_CREDITS = 100
 const COST_PER_RUN = 20
 
-const CREDITS_KEY = 'classify.credits'
-const USER_KEY = 'classify.user'
+const CREDITS_KEY = 'jev.credits'
 
 export interface AccountUser {
+  id: string
   email: string
-  name: string
+  name: string | null
+  picture: string | null
 }
 
 function readCredits(): number {
@@ -28,20 +27,10 @@ function readCredits(): number {
   }
 }
 
-function readUser(): AccountUser | null {
-  try {
-    const raw = localStorage.getItem(USER_KEY)
-    return raw ? (JSON.parse(raw) as AccountUser) : null
-  } catch {
-    return null
-  }
-}
-
 export function useAccount() {
   const [credits, setCredits] = useState<number>(readCredits)
-  const [user, setUser] = useState<AccountUser | null>(readUser)
-  // session activity counter (display-only, no quota semantics)
-  const [runsThisSession, setRunsThisSession] = useState(0)
+  const [user, setUser] = useState<AccountUser | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     try {
@@ -51,32 +40,57 @@ export function useAccount() {
     }
   }, [credits])
 
+  // Ask the Worker who is signed in.
+  useEffect(() => {
+    let alive = true
+    fetch('/api/auth/me', { credentials: 'same-origin' })
+      .then((r) => (r.ok ? r.json() : { user: null }))
+      .then((d: { user: AccountUser | null }) => {
+        if (!alive) return
+        setUser(d?.user ?? null)
+        setLoading(false)
+      })
+      .catch(() => {
+        if (alive) setLoading(false)
+      })
+    return () => {
+      alive = false
+    }
+  }, [])
+
   const canRun = user !== null || credits >= COST_PER_RUN
 
   const consumeRun = useCallback(() => {
     setCredits((c) => Math.max(0, c - COST_PER_RUN))
-    setRunsThisSession((n) => n + 1)
   }, [])
 
-  const signIn = useCallback((email: string) => {
-    const name = email.split('@')[0].replace(/[._-]+/g, ' ').trim() || 'User'
-    const u = { email, name: name.replace(/\b\w/g, (c) => c.toUpperCase()) }
-    try {
-      localStorage.setItem(USER_KEY, JSON.stringify(u))
-    } catch {
-      /* ignore */
-    }
-    setUser(u)
+  const signInWithGoogle = useCallback(() => {
+    const next = window.location.pathname + window.location.search
+    window.location.href = `/api/auth/google?next=${encodeURIComponent(next)}`
   }, [])
 
-  const signOut = useCallback(() => {
+  const signOut = useCallback(async () => {
     try {
-      localStorage.removeItem(USER_KEY)
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' })
     } catch {
       /* ignore */
     }
     setUser(null)
   }, [])
 
-  return { canRun, user, runsThisSession, consumeRun, signIn, signOut }
+  const deleteAccount = useCallback(async (): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/auth/account', {
+        method: 'DELETE',
+        credentials: 'same-origin',
+      })
+      if (!response.ok) return false
+      setUser(null)
+      return true
+    } catch {
+      return false
+    }
+  }, [])
+
+  return { canRun, loading, user, consumeRun, signInWithGoogle, signOut, deleteAccount }
 }
