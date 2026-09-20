@@ -98,7 +98,7 @@ export function PrivacyPage() {
   return (
     <LegalShell
       title="Privacy Policy"
-      summary="JEV AI Model processes playground requests to produce classifications and stores only the account and usage data needed to operate the service."
+      summary="JEV AI Model processes playground requests, account and usage data, and basic website analytics needed to operate and improve the service."
     >
       <Section title="Information we process">
         <p>
@@ -116,6 +116,11 @@ export function PrivacyPage() {
           address, display name, and profile image. We also store a random session identifier in a
           secure, HTTP-only cookie so you can remain signed in.
         </p>
+        <p>
+          We use Google Analytics to understand visits and page usage. Google Analytics may process
+          page URLs, browser and device information, approximate location derived from your IP
+          address, and analytics identifiers stored in cookies.
+        </p>
       </Section>
 
       <Section title="How we use information">
@@ -123,6 +128,10 @@ export function PrivacyPage() {
           Google account information is used only to authenticate you, maintain your session, and
           provide account-related features. We do not sell personal information, serve targeted
           advertising, or use your Google data to train models.
+        </p>
+        <p>
+          Analytics information is used to measure site traffic, find broken or confusing flows,
+          and improve the playground. It is not used by us for targeted advertising.
         </p>
         <p>
           Our use and transfer of information received from Google APIs adheres to the{' '}
@@ -139,10 +148,11 @@ export function PrivacyPage() {
 
       <Section title="Storage, providers, and retention">
         <p>
-          The site and account database run on Cloudflare. Google provides sign-in and web fonts.
-          Authentication sessions expire after 30 days; signing out removes the current server-side
-          session. Signed-in usage counts reset daily. Account profile and associated usage data
-          remain until you delete the account.
+          The site and account database run on Cloudflare. Google provides sign-in, web fonts, and
+          Google Analytics. Authentication sessions expire after 30 days; signing out removes the
+          current server-side session. Signed-in usage counts reset daily. Account profile and
+          associated usage data remain until you delete the account. Analytics data is retained
+          according to the settings of our Google Analytics account.
         </p>
       </Section>
 
@@ -150,6 +160,11 @@ export function PrivacyPage() {
         <p>
           You may use the playground as a guest, sign out at any time, or permanently delete your
           stored profile and every active session below. Deletion cannot be undone.
+        </p>
+        <p>
+          You can limit analytics cookies through your browser settings or a content blocker.
+          Deleting your JEV AI Model account does not delete aggregate analytics records that are not
+          linked to your account.
         </p>
 
         <div className="mt-5 border-l-2 border-zinc-200 pl-4">

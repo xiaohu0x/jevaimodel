@@ -74,6 +74,19 @@ test('social image is a 1200 by 630 PNG', async () => {
   assert.equal(png.readUInt32BE(20), 630)
 })
 
+test('every generated page includes exactly one Google tag', async () => {
+  const paths = [...PRERENDER_PATHS, '/404']
+
+  for (const pathname of paths) {
+    const html = await readFile(outputFile(pathname), 'utf8')
+    assert.equal(html.match(/googletagmanager\.com\/gtag\/js\?id=G-PMB42B64XH/g)?.length, 1)
+    assert.equal(html.match(/src="\/google-tag\.js"/g)?.length, 1)
+  }
+
+  const setup = await readFile(path.join(projectRoot, 'dist', 'google-tag.js'), 'utf8')
+  assert.match(setup, /gtag\('config', 'G-PMB42B64XH'\)/)
+})
+
 test('edge router canonicalizes scheme, host, and public trailing slashes', async () => {
   const cases = [
     ['http://jevaimodel.app/docs?ref=test', 'https://jevaimodel.app/docs?ref=test'],
@@ -94,6 +107,10 @@ test('edge router removes preview noindex on canonical pages and marks 404 respo
     new Response('ok', { status: 200, headers: { 'X-Robots-Tag': 'noindex, nofollow' } })
   const canonical = await handleRequest(new Request('https://jevaimodel.app/docs'), upstream)
   assert.equal(canonical.headers.get('x-robots-tag'), null)
+  assert.match(
+    canonical.headers.get('content-security-policy') ?? '',
+    /script-src 'self' https:\/\/www\.googletagmanager\.com/,
+  )
 
   const missing = await handleRequest(
     new Request('https://jevaimodel.app/missing'),
