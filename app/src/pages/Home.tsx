@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { LoaderCircle, Play } from 'lucide-react'
+import { LoaderCircle, LogIn, Play } from 'lucide-react'
 import Header from '@/sections/Header'
 import Hero from '@/sections/Hero'
 import ExampleRail from '@/sections/ExampleRail'
@@ -72,20 +72,34 @@ export default function Home() {
     const ready = questions.filter(isQuestionReady)
     if (!ready.length) return
 
-    // credits gate: silently enforced; when out of credits, ask to sign in
+    if (account.loading) return
     if (!account.canRun) {
-      setLoginOpen(true)
+      if (!account.user && account.quota?.remaining === 0) {
+        setRunError(null)
+        setLoginOpen(true)
+      } else if (account.cooldownSeconds > 0) {
+        setRunError(`Please wait ${account.cooldownSeconds} seconds before running again.`)
+      } else if (account.user && account.quota?.remaining === 0) {
+        setRunError("You've used today's 30 runs. Come back tomorrow.")
+      }
       return
     }
 
     runningRef.current = true
     setRunning(true)
     setRunError(null)
-    account.consumeRun()
     try {
       const record = await classify(ready, state)
+      account.applyQuota(record.quota)
       setRuns((r) => [...r, record])
     } catch (err) {
+      if (err instanceof ClassifyError) {
+        account.applyQuota(err.quota)
+        if (err.code === 'LOGIN_REQUIRED') {
+          setLoginOpen(true)
+          return
+        }
+      }
       setRunError(
         err instanceof ClassifyError
           ? err.message
@@ -151,7 +165,29 @@ export default function Home() {
 
   const contextKeys = (stateToFields(state) ?? []).map((f) => f.key).filter(Boolean)
   const pending = questions.filter(isQuestionReady).length
-  const disabled = running || pending === 0
+  const guestExhausted = !account.user && account.quota?.remaining === 0
+  const dailyExhausted = Boolean(account.user && account.quota?.remaining === 0)
+  const disabled =
+    running ||
+    pending === 0 ||
+    account.loading ||
+    !account.quota ||
+    account.cooldownSeconds > 0 ||
+    dailyExhausted
+
+  const allowanceLabel = account.loading
+    ? 'Checking allowance...'
+    : account.cooldownSeconds > 0
+      ? `Ready in ${account.cooldownSeconds}s`
+      : account.quota
+        ? account.user
+          ? account.quota.remaining > 0
+            ? `${account.quota.remaining} of 30 runs left today`
+            : '30 runs used today. Come back tomorrow.'
+          : account.quota.remaining > 0
+            ? `${account.quota.remaining} free runs left`
+            : 'Sign in to continue'
+        : 'Usage unavailable'
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FEFEFE] text-zinc-900 antialiased">
@@ -211,9 +247,7 @@ export default function Home() {
             {/* action bar — sticks to the viewport bottom while the composer is
                 in view, so Run stays reachable however tall the content grows */}
             <div className="sticky bottom-0 z-20 flex flex-col gap-3 rounded-b-2xl border-t border-zinc-200 bg-zinc-50/95 px-4 py-3.5 backdrop-blur sm:flex-row sm:items-center sm:px-6">
-              <p className="hidden flex-1 text-[14px] text-zinc-400 sm:block">
-                Questions are evaluated against the context
-              </p>
+              <p className="flex-1 text-[13px] text-zinc-400 sm:text-[14px]">{allowanceLabel}</p>
               <div className="flex items-center gap-2.5">
                 <button
                   onClick={handleClear}
@@ -234,6 +268,15 @@ export default function Home() {
                       <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.4} />
                       Asking Jev
                     </>
+                  ) : guestExhausted ? (
+                    <>
+                      <LogIn className="h-4 w-4" strokeWidth={2} />
+                      Sign in to continue
+                    </>
+                  ) : dailyExhausted ? (
+                    <>Daily limit reached</>
+                  ) : account.cooldownSeconds > 0 ? (
+                    <>Ready in {account.cooldownSeconds}s</>
                   ) : (
                     <>
                       <Play className="h-4 w-4 fill-current" strokeWidth={2} />

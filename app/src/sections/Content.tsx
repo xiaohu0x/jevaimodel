@@ -33,7 +33,7 @@ const USE_CASES: { title: string; body: string }[] = [
 const FAQ: { q: string; a: string }[] = [
   {
     q: 'Is JEV AI Model free to use?',
-    a: 'Yes. The playground on this page is free to try in your browser. Pick an example, edit the state, and run a classification without creating an account.',
+    a: 'Yes. You can run three classifications without creating an account. Sign in with Google for 30 playground runs per day.',
   },
   {
     q: 'What is a JEV AI Model state?',
@@ -183,7 +183,7 @@ export default function Content() {
             ['Grounded in your state', 'The model reasons over the exact facts you pass in, so results stay reproducible and explainable.'],
             ['Reusable questions', 'The same question runs against every record you own — only the state changes.'],
             ['Three shapes, one call', 'Truth, scores, and choices cover most classification work without changing tools or prompts.'],
-            ['Nothing to install', 'Run the playground right here in your browser, for free, with no API key of your own.'],
+            ['Nothing to install', 'Run three guest classifications here with no API key of your own.'],
           ].map(([t, b]) => (
             <li key={t} className="flex gap-3">
               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-500" />

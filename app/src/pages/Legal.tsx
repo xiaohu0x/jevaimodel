@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 import { useAccount } from '@/lib/useAccount'
 import { BrandMark } from '@/sections/Illustrations'
 
-const EFFECTIVE_DATE = 'September 20, 2026'
+const EFFECTIVE_DATE = 'September 21, 2026'
 
 function LegalShell({
   title,
@@ -98,12 +98,18 @@ export function PrivacyPage() {
   return (
     <LegalShell
       title="Privacy Policy"
-      summary="JEV AI Model collects only the account information needed for Google sign-in. Playground inputs and generated results stay in your browser."
+      summary="JEV AI Model processes playground requests to produce classifications and stores only the account and usage data needed to operate the service."
     >
       <Section title="Information we process">
         <p>
-          You can use the playground without an account. State, questions, and generated results
-          are processed locally in your browser and are not sent to our server.
+          You can use the playground three times without an account. State and questions are sent
+          through our Cloudflare-hosted function to the TypeSafe classifier to generate an answer.
+          We do not write playground inputs or generated answers to our account database.
+        </p>
+        <p>
+          For guest access, we store a random identifier in an HTTP-only cookie and a pseudonymous
+          usage count in Cloudflare D1. This lets us enforce the free-run limit without collecting an
+          email address.
         </p>
         <p>
           If you sign in with Google, we receive and store your Google account identifier, email
@@ -135,7 +141,8 @@ export function PrivacyPage() {
         <p>
           The site and account database run on Cloudflare. Google provides sign-in and web fonts.
           Authentication sessions expire after 30 days; signing out removes the current server-side
-          session. Account profile data remains until you delete the account.
+          session. Signed-in usage counts reset daily. Account profile and associated usage data
+          remain until you delete the account.
         </p>
       </Section>
 

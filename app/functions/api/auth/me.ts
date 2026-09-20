@@ -1,36 +1,20 @@
-import { SESSION_COOKIE, clearCookie, getCookie, isSecure, json, type Env } from './_utils'
+import { getUsageStatus } from '../_usage'
+import { json, type Env } from './_utils'
 
-/** Returns the signed-in user for the current session cookie. */
-export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
-  const sid = getCookie(request, SESSION_COOKIE)
-  if (!sid) return json({ user: null })
-
-  const row = await env.DB.prepare(
-    `SELECT u.id AS id, u.email AS email, u.name AS name, u.picture AS picture,
-            s.expires_at AS expires_at
-       FROM sessions s
-       JOIN users u ON u.id = s.user_id
-      WHERE s.id = ?`,
-  )
-    .bind(sid)
-    .first<{
-      id: string
-      email: string
-      name: string | null
-      picture: string | null
-      expires_at: number
-    }>()
-
-  if (!row) return json({ user: null })
-
-  if (row.expires_at < Date.now()) {
-    await env.DB.prepare('DELETE FROM sessions WHERE id = ?').bind(sid).run()
-    const res = json({ user: null })
-    res.headers.append('Set-Cookie', clearCookie(SESSION_COOKIE, isSecure(request)))
-    return res
+/** Returns the server-authoritative account and classifier allowance. */
+export const onRequestGet: PagesFunction<Env> = async (context) => {
+  try {
+    const status = await getUsageStatus(context.request, context.env)
+    const response = json({ user: status.actor.user, quota: status.quota })
+    for (const cookie of status.cookies) response.headers.append('Set-Cookie', cookie)
+    return response
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: 'account_status_error',
+        error: error instanceof Error ? error.message : String(error),
+      }),
+    )
+    return json({ error: 'account_status_unavailable' }, 503)
   }
-
-  return json({
-    user: { id: row.id, email: row.email, name: row.name, picture: row.picture },
-  })
 }

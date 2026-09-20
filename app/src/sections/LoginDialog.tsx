@@ -28,8 +28,7 @@ export default function LoginDialog({ open, onClose, onGoogle }: LoginDialogProp
           Sign in to keep going
         </h2>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-zinc-500">
-          Continue with your Google account — it takes a second, and you pick up right where you
-          left off.
+          Continue with your Google account for 30 playground runs each day.
         </p>
 
         <button

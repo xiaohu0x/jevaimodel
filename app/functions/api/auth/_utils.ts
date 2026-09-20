@@ -1,7 +1,10 @@
 /** Shared helpers for the Google sign-in routes. Files starting with `_` are not routed. */
 
-export interface Env {
+export interface DatabaseEnv {
   DB: D1Database
+}
+
+export interface Env extends DatabaseEnv {
   GOOGLE_CLIENT_ID: string
   GOOGLE_CLIENT_SECRET: string
   /** Canonical public origin, e.g. https://jevaimodel.app (used to build OAuth redirect URIs). */
@@ -20,6 +23,19 @@ export const STATE_COOKIE = 'jev_oauth_state'
 export const NEXT_COOKIE = 'jev_oauth_next'
 export const PKCE_COOKIE = 'jev_oauth_pkce'
 export const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30 // 30 days
+
+export interface AccountUser {
+  id: string
+  email: string
+  name: string | null
+  picture: string | null
+}
+
+export interface SessionUserResult {
+  user: AccountUser | null
+  /** A cookie was supplied but no current session matched it. */
+  clearSession: boolean
+}
 
 export function randomToken(bytes = 32): string {
   const buf = new Uint8Array(bytes)
@@ -63,6 +79,38 @@ export function clearCookie(name: string, secure: boolean): string {
 
 export function isSecure(request: Request): boolean {
   return new URL(request.url).protocol === 'https:'
+}
+
+/** Resolves the opaque session cookie without trusting client-side account state. */
+export async function getSessionUser(
+  request: Request,
+  env: DatabaseEnv,
+  now = Date.now(),
+): Promise<SessionUserResult> {
+  const sid = getCookie(request, SESSION_COOKIE)
+  if (!sid) return { user: null, clearSession: false }
+
+  const db = env.DB.withSession('first-primary')
+  const row = await db.prepare(
+    `SELECT u.id AS id, u.email AS email, u.name AS name, u.picture AS picture,
+            s.expires_at AS expires_at
+       FROM sessions s
+       JOIN users u ON u.id = s.user_id
+      WHERE s.id = ?`,
+  )
+    .bind(sid)
+    .first<AccountUser & { expires_at: number }>()
+
+  if (!row) return { user: null, clearSession: true }
+  if (row.expires_at >= now) {
+    return {
+      user: { id: row.id, email: row.email, name: row.name, picture: row.picture },
+      clearSession: false,
+    }
+  }
+
+  await db.prepare('DELETE FROM sessions WHERE id = ?').bind(sid).run()
+  return { user: null, clearSession: true }
 }
 
 export function json(

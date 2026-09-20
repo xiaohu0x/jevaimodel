@@ -35,7 +35,7 @@ www.jevaimodel.app    │  (route: zone/*)             │
                                       ▼
                       ┌──────────────────────────────┐
                       │  D1  jev-ai-model-db         │
-                      │  users · sessions            │
+                      │  users · sessions · usage    │
                       └──────────────────────────────┘
 ```
 
@@ -69,8 +69,11 @@ npm run cf:dev                     # http://localhost:8788 — UI + functions + 
 
 ## Deploying
 
+Apply the idempotent D1 schema before deploying code that depends on it:
+
 ```bash
 cd app
+npm run db:remote
 npm run deploy        # = build + `wrangler pages deploy` + `wrangler deploy --config edge/`
 ```
 
@@ -79,12 +82,6 @@ Or separately:
 ```bash
 npm run cf:deploy     # app only (Pages)
 npm run edge:deploy   # edge router only (Worker + domain routes)
-```
-
-Apply the D1 schema (once, or after editing `schema.sql`):
-
-```bash
-npm run db:remote
 ```
 
 > `wrangler.toml` cannot contain `account_id` for Pages projects. If wrangler picks the wrong
@@ -132,6 +129,20 @@ npm run cf:deploy
 
 The public OAuth trust pages are available at `/privacy` and `/terms`; both are linked directly from
 the sign-in dialog. Security reports use `/.well-known/security.txt`.
+
+---
+
+## Playground usage limits
+
+Limits are enforced in `POST /api/classify` before the paid TypeSafe request is sent:
+
+- Guests receive 3 total runs, tracked by a random `HttpOnly` cookie and a hashed D1 actor key.
+- Signed-in users receive 30 runs per UTC day.
+- Every actor must wait 10 seconds between accepted requests.
+
+The browser displays the allowance returned by the server; deleting local UI state does not reset
+the D1 counter. The implementation intentionally stays lightweight and does not fingerprint devices
+or store raw IP addresses.
 
 ---
 

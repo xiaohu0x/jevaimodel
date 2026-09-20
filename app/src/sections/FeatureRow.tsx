@@ -9,7 +9,7 @@ const FEATURES: { title: string; body: string }[] = [
   },
   {
     title: 'No setup',
-    body: 'Runs in the browser. No account, no API key, no model to choose before you start.',
+    body: 'Try three classifications without an account or API key, then sign in to continue.',
   },
 ]
 

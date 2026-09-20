@@ -1,13 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
-
-/**
- * Auth is real: Google sign-in handled by Cloudflare Pages Functions and stored in D1.
- * Credits stay a soft, invisible gate for guests — one run costs 20, guests start with 100.
- */
-const DEFAULT_CREDITS = 100
-const COST_PER_RUN = 20
-
-const CREDITS_KEY = 'jev.credits'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 export interface AccountUser {
   id: string
@@ -16,54 +7,73 @@ export interface AccountUser {
   picture: string | null
 }
 
-function readCredits(): number {
-  if (typeof window === 'undefined') return DEFAULT_CREDITS
-  try {
-    const raw = localStorage.getItem(CREDITS_KEY)
-    if (raw === null) return DEFAULT_CREDITS
-    const n = Number(raw)
-    return Number.isFinite(n) ? n : DEFAULT_CREDITS
-  } catch {
-    return DEFAULT_CREDITS
-  }
+export interface QuotaSnapshot {
+  authenticated: boolean
+  period: 'lifetime' | 'day'
+  limit: number
+  used: number
+  remaining: number
+  retryAfterSeconds: number
+  resetAt: string | null
+  canRun: boolean
+}
+
+interface AccountResponse {
+  user: AccountUser | null
+  quota: QuotaSnapshot
 }
 
 export function useAccount() {
-  const [credits, setCredits] = useState<number>(readCredits)
   const [user, setUser] = useState<AccountUser | null>(null)
+  const [quota, setQuota] = useState<QuotaSnapshot | null>(null)
+  const [cooldownUntil, setCooldownUntil] = useState(0)
+  const [clock, setClock] = useState(Date.now())
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
+  const applyQuota = useCallback((next: QuotaSnapshot | undefined) => {
+    if (!next) return
+    const now = Date.now()
+    setQuota(next)
+    setClock(now)
+    setCooldownUntil(next.retryAfterSeconds > 0 ? now + next.retryAfterSeconds * 1000 : 0)
+  }, [])
+
+  const refresh = useCallback(async () => {
     try {
-      localStorage.setItem(CREDITS_KEY, String(credits))
-    } catch {
-      /* ignore */
+      const response = await fetch('/api/auth/me', { credentials: 'same-origin' })
+      if (!response.ok) throw new Error('account_status_unavailable')
+      const data = (await response.json()) as AccountResponse
+      setUser(data.user ?? null)
+      applyQuota(data.quota)
+    } catch (error) {
+      setQuota(null)
+      throw error
+    } finally {
+      setLoading(false)
     }
-  }, [credits])
+  }, [applyQuota])
 
-  // Ask the Worker who is signed in.
   useEffect(() => {
-    let alive = true
-    fetch('/api/auth/me', { credentials: 'same-origin' })
-      .then((r) => (r.ok ? r.json() : { user: null }))
-      .then((d: { user: AccountUser | null }) => {
-        if (!alive) return
-        setUser(d?.user ?? null)
-        setLoading(false)
-      })
-      .catch(() => {
-        if (alive) setLoading(false)
-      })
-    return () => {
-      alive = false
-    }
-  }, [])
+    void refresh().catch(() => {})
+  }, [refresh])
 
-  const canRun = user !== null || credits >= COST_PER_RUN
+  useEffect(() => {
+    if (!cooldownUntil) return
+    const timer = window.setInterval(() => {
+      const now = Date.now()
+      setClock(now)
+      if (now >= cooldownUntil) {
+        setCooldownUntil(0)
+        window.clearInterval(timer)
+      }
+    }, 250)
+    return () => window.clearInterval(timer)
+  }, [cooldownUntil])
 
-  const consumeRun = useCallback(() => {
-    setCredits((c) => Math.max(0, c - COST_PER_RUN))
-  }, [])
+  const cooldownSeconds = cooldownUntil
+    ? Math.max(0, Math.ceil((cooldownUntil - clock) / 1000))
+    : 0
+  const canRun = Boolean(quota && quota.remaining > 0 && cooldownSeconds === 0)
 
   const signInWithGoogle = useCallback(() => {
     const next = window.location.pathname + window.location.search
@@ -73,11 +83,13 @@ export function useAccount() {
   const signOut = useCallback(async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' })
-    } catch {
-      /* ignore */
+    } finally {
+      setUser(null)
+      setQuota(null)
+      setLoading(true)
+      await refresh().catch(() => {})
     }
-    setUser(null)
-  }, [])
+  }, [refresh])
 
   const deleteAccount = useCallback(async (): Promise<boolean> => {
     try {
@@ -87,11 +99,37 @@ export function useAccount() {
       })
       if (!response.ok) return false
       setUser(null)
+      setQuota(null)
+      setLoading(true)
+      await refresh().catch(() => {})
       return true
     } catch {
       return false
     }
-  }, [])
+  }, [refresh])
 
-  return { canRun, loading, user, consumeRun, signInWithGoogle, signOut, deleteAccount }
+  return useMemo(
+    () => ({
+      canRun,
+      cooldownSeconds,
+      loading,
+      quota,
+      user,
+      applyQuota,
+      signInWithGoogle,
+      signOut,
+      deleteAccount,
+    }),
+    [
+      applyQuota,
+      canRun,
+      cooldownSeconds,
+      deleteAccount,
+      loading,
+      quota,
+      signInWithGoogle,
+      signOut,
+      user,
+    ],
+  )
 }

@@ -24,7 +24,7 @@ const website = {
 const homeFaq = [
   {
     q: 'Is JEV AI Model free to use?',
-    a: 'Yes. The playground on this page is free to try in your browser. Pick an example, edit the state, and run a classification without creating an account.',
+    a: 'Yes. You can run three classifications without creating an account. Sign in with Google for 30 playground runs per day.',
   },
   {
     q: 'What is a JEV AI Model state?',
@@ -48,7 +48,7 @@ const pageSeo: Record<string, PageSeo> = {
   '/': {
     title: 'JEV AI Model — Free AI Classifier Playground',
     description:
-      'Run the JEV AI Model playground free in your browser. Turn context into typed answers — likelihoods, ratings, and choices — in seconds.',
+      'Try three JEV AI Model classifications without an account. Turn context into typed likelihoods, ratings, and choices in seconds.',
     canonicalPath: '/',
     index: true,
     ogType: 'website',
@@ -145,7 +145,7 @@ const pageSeo: Record<string, PageSeo> = {
   '/privacy': {
     title: 'Privacy Policy | JEV AI Model',
     description:
-      'Read how JEV AI Model handles Google account information, browser-only playground data, sessions, and account deletion.',
+      'Read how JEV AI Model handles playground requests, usage limits, Google account information, sessions, and account deletion.',
     canonicalPath: '/privacy',
     index: true,
     ogType: 'article',

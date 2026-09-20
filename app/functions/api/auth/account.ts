@@ -1,3 +1,4 @@
+import { userUsageKey } from '../_usage'
 import { SESSION_COOKIE, clearCookie, getCookie, isSecure, json, type Env } from './_utils'
 
 /** Permanently deletes the signed-in account and all of its sessions. */
@@ -14,6 +15,7 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
     if (session) {
       await env.DB.batch([
         env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(session.user_id),
+        env.DB.prepare('DELETE FROM usage_buckets WHERE actor_key = ?').bind(userUsageKey(session.user_id)),
         env.DB.prepare('DELETE FROM users WHERE id = ?').bind(session.user_id),
       ])
     }

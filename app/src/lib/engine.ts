@@ -6,6 +6,8 @@
  * api.typesafe.ai directly; it posts to /api/classify, which holds the key.
  */
 
+import type { QuotaSnapshot } from '@/lib/useAccount'
+
 export type PrimitiveType = 'noul' | 'score' | 'choice'
 
 /** A Choice option: the model picks one, guided by its description. */
@@ -67,10 +69,20 @@ export interface RunRecord {
   model: string
   totalLatencyMs: number
   usage?: { input_tokens?: number; output_tokens?: number }
+  quota?: QuotaSnapshot
 }
 
 /** Thrown with a message already safe to show a user. */
-export class ClassifyError extends Error {}
+export class ClassifyError extends Error {
+  readonly code?: string
+  readonly quota?: QuotaSnapshot
+
+  constructor(message: string, code?: string, quota?: QuotaSnapshot) {
+    super(message)
+    this.code = code
+    this.quota = quota
+  }
+}
 
 export const PRIMITIVE_META: Record<
   PrimitiveType,
@@ -345,6 +357,7 @@ export async function classify(questions: Question[], state: string): Promise<Ru
     res = await fetch('/api/classify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
       body: JSON.stringify({
         state: parseState(state),
         questions: Object.fromEntries(ready.map((q) => [q.id, toApiQuestion(q)])),
@@ -360,6 +373,8 @@ export async function classify(questions: Question[], state: string): Promise<Ru
     usage?: RunRecord['usage']
     latencyMs?: number
     error?: string
+    code?: string
+    quota?: QuotaSnapshot
   }
   try {
     payload = await res.json()
@@ -367,7 +382,13 @@ export async function classify(questions: Question[], state: string): Promise<Ru
     throw new ClassifyError('The classifier returned an unreadable response.')
   }
 
-  if (!res.ok) throw new ClassifyError(payload.error || 'The classifier could not answer that.')
+  if (!res.ok) {
+    throw new ClassifyError(
+      payload.error || 'The classifier could not answer that.',
+      payload.code,
+      payload.quota,
+    )
+  }
 
   const answers = payload.answers ?? {}
   const results: ClassificationResult[] = ready
@@ -384,5 +405,6 @@ export async function classify(questions: Question[], state: string): Promise<Ru
     model: payload.model ?? 'jev',
     totalLatencyMs: payload.latencyMs ?? Date.now() - startedAt,
     usage: payload.usage,
+    quota: payload.quota,
   }
 }
