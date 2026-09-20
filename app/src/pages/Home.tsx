@@ -2,9 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { LoaderCircle, Play } from 'lucide-react'
 import Header from '@/sections/Header'
 import Hero from '@/sections/Hero'
+import ExampleRail from '@/sections/ExampleRail'
 import StateEditor from '@/sections/StateEditor'
 import QuestionsEditor from '@/sections/QuestionsEditor'
 import OutputPanel from '@/sections/OutputPanel'
+import FeatureRow from '@/sections/FeatureRow'
 import Content from '@/sections/Content'
 import Footer from '@/sections/Footer'
 import LoginDialog from '@/sections/LoginDialog'
@@ -24,6 +26,7 @@ const INITIAL_QUESTIONS: Question[] = [{ id: uid(), type: 'noul', question: '' }
 export default function Home() {
   const [state, setState] = useState(DEFAULT_STATE)
   const [questions, setQuestions] = useState<Question[]>(INITIAL_QUESTIONS)
+  const [activePreset, setActivePreset] = useState<string | null>(null)
   const [runs, setRuns] = useState<RunRecord[]>([])
   const [running, setRunning] = useState(false)
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
@@ -33,10 +36,24 @@ export default function Home() {
 
   const account = useAccount()
   const runningRef = useRef(false)
+  const resultRef = useRef<HTMLDivElement | null>(null)
 
   const loadPreset = useCallback((p: Preset) => {
     setState(p.state)
     setQuestions(p.questions.map((q) => ({ ...q, id: uid() })))
+    setActivePreset(p.id)
+    setRuns([])
+  }, [])
+
+  // Any hand edit means it is no longer that example.
+  const editState = useCallback((v: string) => {
+    setState(v)
+    setActivePreset(null)
+  }, [])
+
+  const editQuestions = useCallback((qs: Question[]) => {
+    setQuestions(qs)
+    setActivePreset(null)
   }, [])
 
   const handleRun = useCallback(async () => {
@@ -67,6 +84,7 @@ export default function Home() {
   const handleClear = useCallback(() => {
     setState(DEFAULT_STATE)
     setQuestions([{ id: uid(), type: 'noul', question: '' }])
+    setActivePreset(null)
     setRuns([])
   }, [])
 
@@ -76,6 +94,12 @@ export default function Home() {
     setShared(true)
     window.setTimeout(() => setShared(false), 1600)
   }, [state, questions])
+
+  // Results render below the composer, so bring them into view after a run.
+  useEffect(() => {
+    if (!runs.length) return
+    resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [runs])
 
   // ⌘/Ctrl + Enter → Run
   useEffect(() => {
@@ -114,82 +138,90 @@ export default function Home() {
 
       <main className="flex-1">
         {authError && (
-          <div className="mx-auto w-full max-w-[820px] px-4 pt-5 sm:px-6">
-            <div className="flex items-center gap-3 rounded-xl border border-[#f386a1] bg-[#f386a1]/10 px-3.5 py-2.5">
-              <span className="text-[12.5px] text-zinc-800">
+          <div className="mx-auto w-full max-w-[1240px] px-4 pt-5 sm:px-8">
+            <div className="flex items-center gap-3 rounded-xl border border-[#f386a1] bg-[#f386a1]/10 px-4 py-3">
+              <span className="text-[14.5px] text-zinc-800">
                 Couldn’t complete Google sign-in
-                <span className="font-mono text-[11px] text-zinc-500"> ({authError})</span>. Please
+                <span className="font-mono text-[12.5px] text-zinc-500"> ({authError})</span>. Please
                 try again.
               </span>
               <button
                 onClick={() => setAuthError(null)}
-                className="ml-auto shrink-0 text-[11.5px] font-medium text-zinc-500 hover:text-zinc-900"
+                className="ml-auto shrink-0 text-[13px] font-medium text-zinc-500 hover:text-zinc-900"
               >
                 Dismiss
               </button>
             </div>
           </div>
         )}
-        <Hero />
 
         {/* console */}
-        <section id="playground" className="scroll-mt-16 border-b border-zinc-200/70">
-          <div className="flex flex-col lg:flex-row lg:items-stretch">
-            {/* editor column */}
-            <div className="flex flex-col border-zinc-200 lg:w-[52%] lg:min-w-[480px] lg:max-w-[760px] lg:border-r">
-              <div className="flex-1 space-y-6 px-4 py-5 sm:px-6 lg:py-7">
-                <StateEditor value={state} onChange={setState} />
-                <QuestionsEditor questions={questions} onChange={setQuestions} />
-              </div>
+        <section
+          id="playground"
+          className="mx-auto w-full max-w-[1240px] scroll-mt-16 px-4 pt-10 pb-14 sm:px-8 sm:pt-14"
+        >
+          <Hero />
 
-              {/* action bar — always within thumb reach */}
-              <div className="sticky bottom-0 z-20 shrink-0 border-t border-zinc-200 bg-[#FEFEFE]/95 px-4 py-3.5 backdrop-blur sm:px-6">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleRun}
-                    disabled={disabled}
-                    className={cn(
-                      'btn-ink flex h-11 flex-1 items-center justify-center gap-2 rounded-xl text-[14px] font-semibold',
-                      disabled && 'pointer-events-none opacity-30',
-                    )}
-                  >
-                    {running ? (
-                      <>
-                        <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.4} />
-                        {progress ? `Running ${progress.done}/${progress.total}` : 'Running'}
-                      </>
-                    ) : (
-                      <>
-                        <Play className="h-3.5 w-3.5 fill-current" strokeWidth={2} />
-                        Run
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={handleClear}
-                    className="h-11 rounded-xl border border-zinc-300 bg-white px-5 text-[13px] font-medium text-zinc-600 transition-colors hover:border-zinc-400 hover:text-zinc-900"
-                  >
-                    Clear
-                  </button>
-                </div>
-                <p className="mt-2 hidden text-center text-[11px] text-zinc-400 sm:block">
-                  Press ⌘↵ to run — questions are evaluated against the state above
-                </p>
+          <div className="mt-11">
+            <ExampleRail activeId={activePreset} onLoadPreset={loadPreset} />
+          </div>
+
+          {/* composer — context and questions side by side on desktop */}
+          <div className="mt-6 overflow-hidden rounded-2xl border border-zinc-900/15 bg-white shadow-[0_1px_2px_rgba(30,30,30,0.04),0_12px_32px_-12px_rgba(30,30,30,0.12)]">
+            <div className="flex flex-col lg:flex-row lg:items-stretch">
+              <div className="flex flex-col p-5 sm:p-7 lg:w-1/2 lg:border-r lg:border-zinc-200">
+                <StateEditor value={state} onChange={editState} />
+              </div>
+              <div className="flex flex-col border-t border-zinc-200 p-5 sm:p-7 lg:w-1/2 lg:border-t-0">
+                <QuestionsEditor questions={questions} onChange={editQuestions} />
               </div>
             </div>
 
-            {/* output column */}
-            <div className="flex-1">
-              <OutputPanel
-                runs={runs}
-                running={running}
-                pendingQuestions={pending}
-                onLoadPreset={loadPreset}
-              />
+            <div className="flex flex-col gap-3 border-t border-zinc-200 bg-zinc-50 px-5 py-4 sm:flex-row sm:items-center sm:px-7">
+              <p className="hidden flex-1 text-[14px] text-zinc-400 sm:block">
+                Questions are evaluated against the context
+              </p>
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={handleClear}
+                  className="h-12 rounded-xl border border-zinc-300 bg-white px-6 text-[15px] font-medium text-zinc-600 transition-colors hover:border-zinc-900 hover:text-zinc-900"
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={handleRun}
+                  disabled={disabled}
+                  className={cn(
+                    'btn-ink flex h-12 flex-1 items-center justify-center gap-2.5 rounded-xl px-8 text-[16px] font-semibold sm:flex-none',
+                    disabled && 'pointer-events-none opacity-30',
+                  )}
+                >
+                  {running ? (
+                    <>
+                      <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={2.4} />
+                      {progress ? `Running ${progress.done}/${progress.total}` : 'Running'}
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-4 w-4 fill-current" strokeWidth={2} />
+                      Run
+                      <span className="hidden font-mono text-[12px] font-normal opacity-50 sm:inline">
+                        ⌘↵
+                      </span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
+          </div>
+
+          {/* results — expand below the composer */}
+          <div ref={resultRef} className={cn((running || runs.length) && 'scroll-mt-20 pt-10')}>
+            <OutputPanel runs={runs} running={running} pendingQuestions={pending} />
           </div>
         </section>
 
+        <FeatureRow />
         <Content />
         <Footer />
       </main>

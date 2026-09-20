@@ -379,11 +379,11 @@ export const USE_CASES: Preset[] = [
   },
 ]
 
-export const DEFAULT_STATE = JSON.stringify(
-  { example_state: 'Add context for JEV AI Model to evaluate' },
-  null,
-  2,
-)
+/**
+ * Empty context. The field view renders its own "add a field, or pick an
+ * example" prompt, so a placeholder key here would only read as a real field.
+ */
+export const DEFAULT_STATE = '{}'
 
 export function uid(): string {
   return Math.random().toString(36).slice(2, 10)

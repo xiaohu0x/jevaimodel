@@ -20,28 +20,28 @@ export default function Header({
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 shrink-0 border-b border-zinc-950/[0.07] bg-[#FEFEFE]/85 backdrop-blur">
-      <div className="flex h-14 items-center gap-3 px-4 sm:px-5">
+      <div className="flex h-16 items-center gap-3 px-4 sm:px-8">
         <div className="flex items-center gap-2.5">
-          <BrandMark className="h-7 w-7 shrink-0" />
-          <span className="text-[13.5px] font-semibold tracking-[-0.01em] text-zinc-900">
+          <BrandMark className="h-8 w-8 shrink-0" />
+          <span className="text-[15px] font-semibold tracking-[-0.015em] text-zinc-900">
             JEV AI Model
           </span>
           <span className="hidden h-4 w-px bg-zinc-300 sm:block" />
-          <span className="hidden text-[13px] font-medium text-zinc-500 sm:inline">Playground</span>
+          <span className="hidden text-[14px] font-medium text-zinc-400 sm:inline">Playground</span>
         </div>
 
         <div className="ml-auto flex items-center gap-1">
           <Link
             to="/docs"
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-zinc-500 transition-colors hover:bg-zinc-900/[0.05] hover:text-zinc-900"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[14px] font-medium text-zinc-500 transition-colors hover:bg-zinc-900/[0.05] hover:text-zinc-900"
           >
-            <BookOpen className="h-3.5 w-3.5" strokeWidth={1.8} />
+            <BookOpen className="h-4 w-4" strokeWidth={1.8} />
             <span className="hidden sm:inline">How it works</span>
           </Link>
 
           <button
             onClick={onShare}
-            className="rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-zinc-500 transition-colors hover:bg-zinc-900/[0.05] hover:text-zinc-900"
+            className="rounded-lg px-3 py-2 text-[14px] font-medium text-zinc-500 transition-colors hover:bg-zinc-900/[0.05] hover:text-zinc-900"
           >
             {shared ? 'Copied' : 'Share'}
           </button>
@@ -58,7 +58,7 @@ export default function Header({
               ) : (
                 <div
                   title={user.email}
-                  className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-bold text-white"
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-900 text-[11px] font-bold text-white"
                 >
                   {(user.name || user.email).slice(0, 1).toUpperCase()}
                 </div>
@@ -68,13 +68,13 @@ export default function Header({
                 title="Sign out"
                 className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-900/[0.05] hover:text-zinc-700"
               >
-                <LogOut className="h-3.5 w-3.5" strokeWidth={1.8} />
+                <LogOut className="h-4 w-4" strokeWidth={1.8} />
               </button>
             </div>
           ) : (
             <button
               onClick={onSignIn}
-              className="ml-1 rounded-lg bg-zinc-900 px-3 py-1.5 text-[12.5px] font-semibold text-[#fafafa] transition-colors hover:bg-zinc-700"
+              className="ml-1 rounded-lg bg-zinc-900 px-4 py-2 text-[14px] font-semibold text-[#fafafa] transition-colors hover:bg-zinc-700"
             >
               Sign in
             </button>
