@@ -28,6 +28,21 @@ export function localeHomePath(locale: Locale): string {
   return slug ? `/${slug}` : '/'
 }
 
+const API_GUIDE_URLS: Record<Locale, string> = {
+  en: 'https://omniakey.com/blog/jev-model-explained',
+  'zh-CN': 'https://omniakey.com/zh/blog/jev-model-explained',
+  es: 'https://omniakey.com/es/blog/jev-model-explained',
+  ja: 'https://omniakey.com/ja/blog/jev-model-explained',
+  ko: 'https://omniakey.com/ko/blog/jev-model-explained',
+  fr: 'https://omniakey.com/fr/blog/jev-model-explained',
+  de: 'https://omniakey.com/de/blog/jev-model-explained',
+  'pt-BR': 'https://omniakey.com/pt-BR/blog/jev-model-explained',
+}
+
+export function localeApiGuideUrl(locale: Locale): string {
+  return API_GUIDE_URLS[locale]
+}
+
 export function localeFromPathname(pathname: string): Locale {
   const firstSegment = pathname.split('/').filter(Boolean)[0]?.toLowerCase()
   return LOCALES.find((locale) => locale.slug === firstSegment)?.code ?? DEFAULT_LOCALE
@@ -57,6 +72,7 @@ interface UiCopy {
   header: {
     playground: string
     howItWorks: string
+    apiGuide: string
     share: string
     copied: string
     signIn: string
@@ -187,7 +203,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
       h1: 'JEV AI Model: free online AI text classifier',
       imageAlt: 'Free online AI text classifier by JEV AI Model',
     },
-    header: { playground: 'Playground', howItWorks: 'How it works', share: 'Share', copied: 'Copied', signIn: 'Sign in', signOut: 'Sign out', language: 'Language' },
+    header: { playground: 'Playground', howItWorks: 'How it works', apiGuide: 'API integration guide', share: 'Share', copied: 'Copied', signIn: 'Sign in', signOut: 'Sign out', language: 'Language' },
     hero: {
       eyebrow: 'FREE ONLINE AI TEXT CLASSIFIER',
       lines: ['JEV AI Model:', 'free online AI text classifier'],
@@ -224,7 +240,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
       h1: 'JEV AI Model：免费在线 AI 文本分类器',
       imageAlt: 'JEV AI Model 免费在线 AI 文本分类器',
     },
-    header: { playground: '分类工具', howItWorks: '使用方法', share: '分享', copied: '已复制', signIn: '登录', signOut: '退出登录', language: '语言' },
+    header: { playground: '分类工具', howItWorks: '使用方法', apiGuide: 'API 接入指南', share: '分享', copied: '已复制', signIn: '登录', signOut: '退出登录', language: '语言' },
     hero: {
       eyebrow: '在线 AI 文本分类工具',
       lines: ['JEV AI Model：', '免费在线 AI 文本分类器'],
@@ -250,7 +266,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
   },
   es: {
     seo: { title: 'JEV AI Model: clasificador de texto con IA gratis sin cola', description: 'JEV AI Model es un clasificador de texto con IA gratis y online para texto y JSON. Obtén probabilidades, puntuaciones, etiquetas y confianza sin clave API.', h1: 'JEV AI Model: clasificador de texto con IA gratis', imageAlt: 'Clasificador de texto con IA gratis de JEV AI Model' },
-    header: { playground: 'Clasificador', howItWorks: 'Cómo funciona', share: 'Compartir', copied: 'Copiado', signIn: 'Entrar', signOut: 'Cerrar sesión', language: 'Idioma' },
+    header: { playground: 'Clasificador', howItWorks: 'Cómo funciona', apiGuide: 'Guía de integración API', share: 'Compartir', copied: 'Copiado', signIn: 'Entrar', signOut: 'Cerrar sesión', language: 'Idioma' },
     hero: { eyebrow: 'CLASIFICADOR DE TEXTO CON IA', lines: ['JEV AI Model:', 'clasificador de texto con IA gratis'], intro: 'Pega texto o JSON, elige el formato de respuesta y obtén una clasificación fundamentada con nivel de confianza.' },
     examples: { prompt: '¿Es tu primera vez? Empieza con un ejemplo', hint: 'cada ejemplo completa el contexto y la pregunta', titles: { hotdog: '¿Un perrito caliente es un sándwich?', sky: '¿De qué color está el cielo?', support: 'Clasificar un mensaje de soporte', resume: 'Evaluar un currículum' } },
     editor: { context: 'Contexto', contextHint: 'los datos que se van a clasificar', invalidJson: 'JSON no válido', fieldView: 'Campos', fieldViewUnavailable: 'La vista de campos necesita un objeto JSON plano', fields: 'Campos', field: 'Campo', value: 'Valor', noFacts: 'Aún no hay datos. Añade un campo o elige un ejemplo.', addField: 'Añadir campo', removeField: 'Eliminar campo', contextJson: 'JSON de contexto', fixJson: 'Corrige el JSON para volver a la vista de campos.', nestedJson: 'Este contexto está anidado y se mantiene como JSON. Los datos planos pueden usar la vista de campos.', questions: 'Preguntas', questionsHint: 'qué quieres saber sobre el contexto', pickAnswer: 'Elige el tipo de respuesta:', add: 'Añadir', selectType: 'Seleccionar tipo de pregunta', docs: 'Docs', questionType: 'Tipo de pregunta', removeQuestion: 'Eliminar pregunta', instructions: 'Instrucciones', noulHelp: 'Escribe una afirmación. Recibirás la probabilidad de que sea cierta, de 0 a 1.', levels: 'Niveles, de menor a mayor', lowest: 'Mínimo, p. ej. sin impacto', highest: 'Máximo, p. ej. bloqueante', inBetween: 'Nivel intermedio', addLevel: 'Añadir nivel', removeLevel: 'Eliminar nivel', levelHelp: 'Recibirás un número en esta escala; 1,4 queda entre los niveles 1 y 2.', options: 'Opciones', optionName: 'Nombre de la opción', optionDescription: 'Qué incluye esta opción', addOption: 'Añadir opción', removeOption: 'Eliminar opción', optionHelp: 'El modelo lee la descripción; explica con claridad qué incluye cada opción.', youGet: 'Resultado' },
@@ -264,7 +280,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
   },
   ja: {
     seo: { title: 'JEV AIモデル：順番待ち不要の無料オンラインAI分類ツール', description: 'JEV AI Modelは、テキストやJSONを確率・スコア・ラベルに変換する無料オンラインAI分類ツールです。APIキーなしですぐ試せます。', h1: 'JEV AI Model：無料オンラインAIテキスト分類ツール', imageAlt: 'JEV AI Modelの無料AIテキスト分類ツール' },
-    header: { playground: '分類ツール', howItWorks: '使い方', share: '共有', copied: 'コピー済み', signIn: 'ログイン', signOut: 'ログアウト', language: '言語' },
+    header: { playground: '分類ツール', howItWorks: '使い方', apiGuide: 'API 接続ガイド', share: '共有', copied: 'コピー済み', signIn: 'ログイン', signOut: 'ログアウト', language: '言語' },
     hero: { eyebrow: 'オンラインAIテキスト分類', lines: ['JEV AI Model：', '無料オンラインAIテキスト分類ツール'], intro: 'テキストやJSONを貼り付け、回答形式を選ぶだけ。確信度付きの分類結果をすぐに取得できます。' },
     examples: { prompt: '初めてですか？例から始めましょう', hint: '下のコンテキストと質問が自動入力されます', titles: { hotdog: 'ホットドッグはサンドイッチ？', sky: '空は何色？', support: '問い合わせを振り分ける', resume: '履歴書を評価する' } },
     editor: { context: 'コンテキスト', contextHint: '分類する事実を1行ずつ入力', invalidJson: 'JSONが無効です', fieldView: 'フィールド', fieldViewUnavailable: 'フィールド表示にはフラットなJSONオブジェクトが必要です', fields: 'フィールド', field: '項目', value: '値', noFacts: 'データがありません。フィールドを追加するか、例を選んでください。', addField: 'フィールドを追加', removeField: 'フィールドを削除', contextJson: 'コンテキストJSON', fixJson: 'JSONを修正するとフィールド表示に戻れます。', nestedJson: '入れ子のコンテキストはJSON表示になります。フラットなキーと値はフィールド表示を利用できます。', questions: '質問', questionsHint: 'コンテキストから何を判断するか', pickAnswer: '必要な回答形式を選択：', add: '追加', selectType: '質問タイプを選択', docs: 'Docs', questionType: '質問タイプ', removeQuestion: '質問を削除', instructions: '判定内容', noulHelp: '質問ではなく文として入力します。真である確率が0〜1で返ります。', levels: 'レベル（低い順）', lowest: '最低（例：影響なし）', highest: '最高（例：完全に停止）', inBetween: '中間', addLevel: 'レベルを追加', removeLevel: 'レベルを削除', levelHelp: 'この尺度上の数値が返ります。1.4はレベル1と2の間です。', options: '選択肢', optionName: '選択肢名', optionDescription: 'この選択肢の範囲', addOption: '選択肢を追加', removeOption: '選択肢を削除', optionHelp: 'モデルは説明文を読みます。各選択肢の範囲を明確にしてください。', youGet: '返される結果' },
@@ -278,7 +294,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
   },
   ko: {
     seo: { title: 'JEV AI 모델: 대기열 없이 바로 쓰는 무료 AI 텍스트 분류기', description: 'JEV AI Model은 텍스트와 JSON을 확률, 점수, 라벨로 바꾸는 무료 온라인 AI 분류기입니다. API 키 없이 바로 사용해 보세요.', h1: 'JEV AI Model: 무료 온라인 AI 텍스트 분류기', imageAlt: 'JEV AI Model 무료 온라인 AI 텍스트 분류기' },
-    header: { playground: '분류 도구', howItWorks: '사용 방법', share: '공유', copied: '복사됨', signIn: '로그인', signOut: '로그아웃', language: '언어' },
+    header: { playground: '분류 도구', howItWorks: '사용 방법', apiGuide: 'API 연동 가이드', share: '공유', copied: '복사됨', signIn: '로그인', signOut: '로그아웃', language: '언어' },
     hero: { eyebrow: '온라인 AI 텍스트 분류', lines: ['JEV AI Model:', '무료 온라인 AI 텍스트 분류기'], intro: '텍스트나 JSON을 붙여 넣고 답변 형식을 선택하면 신뢰도가 포함된 분류 결과를 받을 수 있습니다.' },
     examples: { prompt: '처음이신가요? 예제로 시작하세요', hint: '아래 컨텍스트와 질문이 자동으로 채워집니다', titles: { hotdog: '핫도그는 샌드위치일까요?', sky: '하늘은 무슨 색일까요?', support: '고객 문의 분류하기', resume: '이력서 평가하기' } },
     editor: { context: '컨텍스트', contextHint: '분류할 사실을 한 줄씩 입력', invalidJson: '잘못된 JSON', fieldView: '필드', fieldViewUnavailable: '필드 보기는 단순 JSON 객체가 필요합니다', fields: '필드', field: '필드', value: '값', noFacts: '아직 데이터가 없습니다. 필드를 추가하거나 예제를 선택하세요.', addField: '필드 추가', removeField: '필드 삭제', contextJson: '컨텍스트 JSON', fixJson: 'JSON을 수정하면 필드 보기로 돌아갈 수 있습니다.', nestedJson: '중첩된 컨텍스트는 JSON으로 표시됩니다. 단순 키/값 데이터는 필드 보기를 사용할 수 있습니다.', questions: '질문', questionsHint: '컨텍스트에서 판단할 내용', pickAnswer: '원하는 답변 형식을 선택하세요:', add: '추가', selectType: '질문 유형 선택', docs: 'Docs', questionType: '질문 유형', removeQuestion: '질문 삭제', instructions: '판단 내용', noulHelp: '질문이 아닌 문장으로 작성하세요. 참일 확률이 0부터 1 사이로 반환됩니다.', levels: '단계(낮음에서 높음)', lowest: '최저(예: 영향 없음)', highest: '최고(예: 완전 차단)', inBetween: '중간 단계', addLevel: '단계 추가', removeLevel: '단계 삭제', levelHelp: '이 척도의 숫자가 반환됩니다. 1.4는 1단계와 2단계 사이입니다.', options: '선택지', optionName: '선택지 이름', optionDescription: '이 선택지의 범위', addOption: '선택지 추가', removeOption: '선택지 삭제', optionHelp: '모델은 설명을 읽습니다. 각 선택지의 범위를 명확히 적어 주세요.', youGet: '결과' },
@@ -292,7 +308,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
   },
   fr: {
     seo: { title: 'JEV AI Model : classificateur IA gratuit sans attente', description: 'JEV AI Model est un classificateur de texte IA gratuit en ligne pour texte et JSON. Obtenez probabilités, scores, étiquettes et confiance sans clé API.', h1: 'JEV AI Model : classificateur de texte IA gratuit', imageAlt: 'Classificateur de texte IA gratuit JEV AI Model' },
-    header: { playground: 'Classificateur', howItWorks: 'Fonctionnement', share: 'Partager', copied: 'Copié', signIn: 'Connexion', signOut: 'Déconnexion', language: 'Langue' },
+    header: { playground: 'Classificateur', howItWorks: 'Fonctionnement', apiGuide: 'Guide d’intégration API', share: 'Partager', copied: 'Copié', signIn: 'Connexion', signOut: 'Déconnexion', language: 'Langue' },
     hero: { eyebrow: 'CLASSIFICATEUR DE TEXTE IA', lines: ['JEV AI Model :', 'classificateur de texte IA gratuit'], intro: 'Collez du texte ou du JSON, choisissez le format de réponse et obtenez une classification justifiée avec son niveau de confiance.' },
     examples: { prompt: 'Première visite ? Commencez par un exemple', hint: 'le contexte et la question seront remplis automatiquement', titles: { hotdog: 'Un hot-dog est-il un sandwich ?', sky: 'De quelle couleur est le ciel ?', support: 'Trier un message de support', resume: 'Évaluer un CV' } },
     editor: { context: 'Contexte', contextHint: 'les faits à classer, un par ligne', invalidJson: 'JSON invalide', fieldView: 'Champs', fieldViewUnavailable: 'La vue champs nécessite un objet JSON plat', fields: 'Champs', field: 'Champ', value: 'Valeur', noFacts: 'Aucune donnée. Ajoutez un champ ou choisissez un exemple.', addField: 'Ajouter un champ', removeField: 'Supprimer le champ', contextJson: 'JSON du contexte', fixJson: 'Corrigez le JSON pour revenir à la vue champs.', nestedJson: 'Ce contexte est imbriqué et reste en JSON. Les données clé/valeur simples peuvent utiliser la vue champs.', questions: 'Questions', questionsHint: 'ce que vous voulez déterminer', pickAnswer: 'Choisissez le type de réponse :', add: 'Ajouter', selectType: 'Choisir le type de question', docs: 'Docs', questionType: 'Type de question', removeQuestion: 'Supprimer la question', instructions: 'Instruction', noulHelp: 'Écrivez une affirmation. Vous recevrez sa probabilité d’être vraie, de 0 à 1.', levels: 'Niveaux, du plus bas au plus haut', lowest: 'Minimum, ex. aucun impact', highest: 'Maximum, ex. bloquant', inBetween: 'Niveau intermédiaire', addLevel: 'Ajouter un niveau', removeLevel: 'Supprimer le niveau', levelHelp: 'Le résultat est un nombre sur cette échelle ; 1,4 se situe entre 1 et 2.', options: 'Options', optionName: 'Nom de l’option', optionDescription: 'Ce que couvre cette option', addOption: 'Ajouter une option', removeOption: 'Supprimer l’option', optionHelp: 'Le modèle lit la description ; précisez ce que couvre chaque option.', youGet: 'Résultat' },
@@ -306,7 +322,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
   },
   de: {
     seo: { title: 'JEV AI Model: Kostenloser KI-Klassifikator ohne Warteliste', description: 'JEV AI Model ist ein kostenloser Online-KI-Textklassifikator für Text und JSON. Erhalte Wahrscheinlichkeiten, Bewertungen und Labels ohne API-Schlüssel.', h1: 'JEV AI Model: kostenloser KI-Textklassifikator', imageAlt: 'Kostenloser KI-Textklassifikator von JEV AI Model' },
-    header: { playground: 'Klassifikator', howItWorks: 'So funktioniert es', share: 'Teilen', copied: 'Kopiert', signIn: 'Anmelden', signOut: 'Abmelden', language: 'Sprache' },
+    header: { playground: 'Klassifikator', howItWorks: 'So funktioniert es', apiGuide: 'API-Integrationsleitfaden', share: 'Teilen', copied: 'Kopiert', signIn: 'Anmelden', signOut: 'Abmelden', language: 'Sprache' },
     hero: { eyebrow: 'ONLINE KI-TEXTKLASSIFIKATOR', lines: ['JEV AI Model:', 'kostenloser KI-Textklassifikator'], intro: 'Text oder JSON einfügen, Antwortformat wählen und eine nachvollziehbare Klassifikation mit Konfidenz erhalten.' },
     examples: { prompt: 'Neu hier? Starte mit einem Beispiel', hint: 'Kontext und Frage werden automatisch ausgefüllt', titles: { hotdog: 'Ist ein Hotdog ein Sandwich?', sky: 'Welche Farbe hat der Himmel?', support: 'Supportanfrage einordnen', resume: 'Lebenslauf bewerten' } },
     editor: { context: 'Kontext', contextHint: 'die zu klassifizierenden Fakten', invalidJson: 'ungültiges JSON', fieldView: 'Felder', fieldViewUnavailable: 'Die Feldansicht benötigt ein flaches JSON-Objekt', fields: 'Felder', field: 'Feld', value: 'Wert', noFacts: 'Noch keine Daten. Füge ein Feld hinzu oder wähle ein Beispiel.', addField: 'Feld hinzufügen', removeField: 'Feld entfernen', contextJson: 'Kontext-JSON', fixJson: 'Korrigiere das JSON, um zur Feldansicht zurückzukehren.', nestedJson: 'Dieser Kontext ist verschachtelt und bleibt in der JSON-Ansicht. Flache Schlüssel/Werte können die Feldansicht nutzen.', questions: 'Fragen', questionsHint: 'was du über den Kontext wissen möchtest', pickAnswer: 'Wähle das gewünschte Antwortformat:', add: 'Hinzufügen', selectType: 'Fragetyp auswählen', docs: 'Docs', questionType: 'Fragetyp', removeQuestion: 'Frage entfernen', instructions: 'Anweisung', noulHelp: 'Formuliere eine Aussage. Du erhältst die Wahrscheinlichkeit, dass sie wahr ist, von 0 bis 1.', levels: 'Stufen, niedrig bis hoch', lowest: 'Niedrigste, z. B. keine Auswirkung', highest: 'Höchste, z. B. blockierend', inBetween: 'Dazwischen', addLevel: 'Stufe hinzufügen', removeLevel: 'Stufe entfernen', levelHelp: 'Du erhältst eine Zahl auf dieser Skala; 1,4 liegt zwischen Stufe 1 und 2.', options: 'Optionen', optionName: 'Name der Option', optionDescription: 'Was diese Option umfasst', addOption: 'Option hinzufügen', removeOption: 'Option entfernen', optionHelp: 'Das Modell liest die Beschreibung. Erkläre klar, was jede Option umfasst.', youGet: 'Ergebnis' },
@@ -320,7 +336,7 @@ export const UI_COPY: Record<Locale, UiCopy> = {
   },
   'pt-BR': {
     seo: { title: 'JEV AI Model: classificador de texto com IA grátis sem fila', description: 'JEV AI Model é um classificador de texto com IA grátis e online para texto e JSON. Receba probabilidades, notas, rótulos e confiança sem chave de API.', h1: 'JEV AI Model: classificador de texto com IA grátis', imageAlt: 'Classificador de texto com IA grátis do JEV AI Model' },
-    header: { playground: 'Classificador', howItWorks: 'Como funciona', share: 'Compartilhar', copied: 'Copiado', signIn: 'Entrar', signOut: 'Sair', language: 'Idioma' },
+    header: { playground: 'Classificador', howItWorks: 'Como funciona', apiGuide: 'Guia de integração da API', share: 'Compartilhar', copied: 'Copiado', signIn: 'Entrar', signOut: 'Sair', language: 'Idioma' },
     hero: { eyebrow: 'CLASSIFICADOR DE TEXTO COM IA', lines: ['JEV AI Model:', 'classificador de texto com IA grátis'], intro: 'Cole texto ou JSON, escolha o formato da resposta e receba uma classificação fundamentada com nível de confiança.' },
     examples: { prompt: 'Primeira vez? Comece com um exemplo', hint: 'o contexto e a pergunta serão preenchidos abaixo', titles: { hotdog: 'Cachorro-quente é sanduíche?', sky: 'Qual é a cor do céu?', support: 'Classificar uma mensagem de suporte', resume: 'Avaliar um currículo' } },
     editor: { context: 'Contexto', contextHint: 'os fatos que serão classificados', invalidJson: 'JSON inválido', fieldView: 'Campos', fieldViewUnavailable: 'A visualização por campos exige um objeto JSON simples', fields: 'Campos', field: 'Campo', value: 'Valor', noFacts: 'Ainda não há dados. Adicione um campo ou escolha um exemplo.', addField: 'Adicionar campo', removeField: 'Remover campo', contextJson: 'JSON do contexto', fixJson: 'Corrija o JSON para voltar à visualização por campos.', nestedJson: 'Este contexto é aninhado e permanece em JSON. Dados simples de chave e valor podem usar campos.', questions: 'Perguntas', questionsHint: 'o que você quer descobrir', pickAnswer: 'Escolha o tipo de resposta:', add: 'Adicionar', selectType: 'Selecionar tipo de pergunta', docs: 'Docs', questionType: 'Tipo de pergunta', removeQuestion: 'Remover pergunta', instructions: 'Instrução', noulHelp: 'Escreva uma afirmação. Você receberá a probabilidade de ela ser verdadeira, de 0 a 1.', levels: 'Níveis, do menor ao maior', lowest: 'Mínimo, ex.: sem impacto', highest: 'Máximo, ex.: bloqueante', inBetween: 'Nível intermediário', addLevel: 'Adicionar nível', removeLevel: 'Remover nível', levelHelp: 'Você recebe um número nesta escala; 1,4 fica entre os níveis 1 e 2.', options: 'Opções', optionName: 'Nome da opção', optionDescription: 'O que esta opção cobre', addOption: 'Adicionar opção', removeOption: 'Remover opção', optionHelp: 'O modelo lê a descrição; explique claramente o que cada opção cobre.', youGet: 'Resultado' },

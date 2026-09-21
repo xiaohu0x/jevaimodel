@@ -1,7 +1,7 @@
-import { BookOpen, LogIn, LogOut } from 'lucide-react'
+import { BookOpen, ExternalLink, LogIn, LogOut } from 'lucide-react'
 import { Link } from 'react-router'
 import type { AccountUser } from '@/lib/useAccount'
-import { localeHomePath } from '@/lib/locale'
+import { localeApiGuideUrl, localeHomePath } from '@/lib/locale'
 import { useLocale } from '@/lib/useLocale'
 import { BrandMark } from '@/sections/Illustrations'
 import LanguageMenu from '@/sections/LanguageMenu'
@@ -39,6 +39,19 @@ export default function Header({
         </Link>
 
         <div className="ml-auto flex items-center gap-1">
+          <a
+            href={localeApiGuideUrl(locale)}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={copy.header.apiGuide}
+            aria-label={copy.header.apiGuide}
+            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[#e551ba]/35 bg-[#e551ba]/[0.07] px-2.5 py-2 text-[13px] font-semibold text-[#b23b91] whitespace-nowrap transition-colors hover:border-[#e551ba]/60 hover:bg-[#e551ba]/[0.13] sm:px-3"
+          >
+            <BookOpen className="h-4 w-4 shrink-0" strokeWidth={1.9} aria-hidden />
+            <span className="hidden lg:inline">{copy.header.apiGuide}</span>
+            <ExternalLink className="hidden h-3.5 w-3.5 shrink-0 sm:inline" strokeWidth={2} aria-hidden />
+          </a>
+
           <Link
             to={`${home}#how-it-works`}
             aria-label={copy.header.howItWorks}
