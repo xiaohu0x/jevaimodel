@@ -13,6 +13,8 @@ export interface Env extends DatabaseEnv {
 
 /** The origin Google should redirect back to — always the canonical one when set. */
 export function publicOrigin(request: Request, env: Env): string {
+  const url = new URL(request.url)
+  if (['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)) return url.origin
   const configured = env.PUBLIC_ORIGIN?.trim()
   if (configured) return configured.replace(/\/+$/, '')
   return new URL(request.url).origin
@@ -56,7 +58,7 @@ export function getCookie(request: Request, name: string): string | null {
     const idx = part.indexOf('=')
     if (idx === -1) continue
     if (part.slice(0, idx).trim() === name) {
-      return decodeURIComponent(part.slice(idx + 1).trim())
+      try { return decodeURIComponent(part.slice(idx + 1).trim()) } catch { return null }
     }
   }
   return null

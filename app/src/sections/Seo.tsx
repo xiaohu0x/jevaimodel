@@ -65,7 +65,7 @@ export default function Seo() {
       canonicalElement?.remove()
     }
 
-    document.head.querySelectorAll('link[data-seo-alternate]').forEach((element) => element.remove())
+    document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach((element) => element.remove())
     for (const alternate of seo.alternates ?? []) {
       const element = document.createElement('link')
       element.rel = 'alternate'

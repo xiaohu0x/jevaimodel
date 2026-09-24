@@ -10,6 +10,7 @@ const PAGES_HOST = 'jev-ai-model-cpn.pages.dev'
 const CANONICAL_HOST = 'jevaimodel.app'
 const WWW_HOST = `www.${CANONICAL_HOST}`
 const CANONICAL_PATHS = new Set([
+  '/blog',
   '/docs',
   '/examples',
   '/privacy',
@@ -53,7 +54,10 @@ const SECURITY_HEADERS = {
 
 function secure(response, { canonical = false, pathname = '/' } = {}) {
   const headers = new Headers(response.headers)
-  for (const [name, value] of Object.entries(SECURITY_HEADERS)) headers.set(name, value)
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    if (name === 'Referrer-Policy' && headers.get(name) === 'no-referrer') continue
+    headers.set(name, value)
+  }
 
   if (canonical) headers.delete('X-Robots-Tag')
   if (response.status === 404) headers.set('X-Robots-Tag', 'noindex, nofollow')
@@ -78,7 +82,7 @@ export async function handleRequest(request, fetchUpstream = fetch) {
   }
 
   const pathWithoutTrailingSlash = url.pathname.replace(/\/+$/, '')
-  if (url.pathname !== pathWithoutTrailingSlash && CANONICAL_PATHS.has(pathWithoutTrailingSlash)) {
+  if (url.pathname !== pathWithoutTrailingSlash && (CANONICAL_PATHS.has(pathWithoutTrailingSlash) || pathWithoutTrailingSlash.startsWith('/blog/'))) {
     url.pathname = pathWithoutTrailingSlash
     return secure(Response.redirect(url.toString(), 301), { canonical: true, pathname: url.pathname })
   }

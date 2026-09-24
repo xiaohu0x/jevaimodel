@@ -1,6 +1,7 @@
 const CANONICAL_HOST = 'jevaimodel.app'
 const WWW_HOST = 'www.jevaimodel.app'
 const CANONICAL_PATHS = new Set([
+  '/blog',
   '/docs',
   '/examples',
   '/privacy',
@@ -44,7 +45,10 @@ const SECURITY_HEADERS: Record<string, string> = {
 
 function secure(response: Response, requestUrl: URL): Response {
   const headers = new Headers(response.headers)
-  for (const [name, value] of Object.entries(SECURITY_HEADERS)) headers.set(name, value)
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    if (name === 'Referrer-Policy' && headers.get(name) === 'no-referrer') continue
+    headers.set(name, value)
+  }
 
   if (requestUrl.hostname.endsWith('.pages.dev')) {
     headers.set('X-Robots-Tag', 'noindex, nofollow')
@@ -77,7 +81,7 @@ export const onRequest: PagesFunction = async (context) => {
   }
 
   const pathWithoutTrailingSlash = url.pathname.replace(/\/+$/, '')
-  if (url.pathname !== pathWithoutTrailingSlash && CANONICAL_PATHS.has(pathWithoutTrailingSlash)) {
+  if (url.pathname !== pathWithoutTrailingSlash && (CANONICAL_PATHS.has(pathWithoutTrailingSlash) || pathWithoutTrailingSlash.startsWith('/blog/'))) {
     url.pathname = pathWithoutTrailingSlash
     return secure(Response.redirect(url.toString(), 301), url)
   }

@@ -16,64 +16,77 @@ import {
   blankQuestion,
   classify,
   isQuestionReady,
+  getRunError,
   uid,
   type Preset,
   type PrimitiveType,
   type Question,
-  type RunRecord,
 } from '@/lib/engine'
+import { LIMITS } from '../../shared/classification'
+import { useDraft } from '@/lib/useDraft'
+import { FEEDBACK } from '@/lib/feedback'
 import { stateToFields } from '@/lib/state-fields'
 import { useAccount } from '@/lib/useAccount'
 import { formatMessage } from '@/lib/locale'
 import { useLocale } from '@/lib/useLocale'
 import { cn } from '@/lib/utils'
 
-/*
- * Start with no question at all: the empty state is the type picker, which is
- * where a first-time visitor learns what the three primitives return. Seeding
- * a blank Noul here would hide that lesson behind a card they did not choose.
- */
-const INITIAL_QUESTIONS: Question[] = []
-
 export default function Home() {
-  const { copy } = useLocale()
-  const [state, setState] = useState(DEFAULT_STATE)
-  const [questions, setQuestions] = useState<Question[]>(INITIAL_QUESTIONS)
+  const { locale, copy } = useLocale()
+  const feedback = FEEDBACK[locale]
+  const { state, questions, runs, setState, setQuestions, setRuns, ready: draftReady, storageError, persist } = useDraft()
   const [activePreset, setActivePreset] = useState<string | null>(null)
-  const [runs, setRuns] = useState<RunRecord[]>([])
   const [running, setRunning] = useState(false)
   const [runError, setRunError] = useState<string | null>(null)
   const [loginOpen, setLoginOpen] = useState(false)
+  const [loginWarning, setLoginWarning] = useState(false)
   const [shared, setShared] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
 
   const account = useAccount()
-  const runningRef = useRef(false)
+  const mounted = useRef(false)
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false } }, [])
+  const requestRef = useRef<AbortController | null>(null)
+  const shareTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => {
+    requestRef.current?.abort()
+    if (shareTimer.current) clearTimeout(shareTimer.current)
+  }, [])
+  const cancelRun = useCallback(() => {
+    requestRef.current?.abort()
+    requestRef.current = null
+    setRunning(false)
+    setRunError(null)
+  }, [])
   const resultRef = useRef<HTMLDivElement | null>(null)
   const composerRef = useRef<HTMLDivElement | null>(null)
 
   const loadPreset = useCallback((p: Preset) => {
+    cancelRun()
     setState(p.state)
     setQuestions(p.questions.map((q) => ({ ...q, id: uid() })))
     setActivePreset(p.id)
     setRuns([])
-  }, [])
+  }, [cancelRun, setState, setQuestions, setRuns])
 
   // Any hand edit means it is no longer that example.
   const editState = useCallback((v: string) => {
     setState(v)
     setActivePreset(null)
-  }, [])
+  }, [setState])
 
   const editQuestions = useCallback((qs: Question[]) => {
     setQuestions(qs)
     setActivePreset(null)
-  }, [])
+  }, [setQuestions])
 
   const handleRun = useCallback(async () => {
-    if (runningRef.current) return
-    const ready = questions.filter(isQuestionReady)
-    if (!ready.length) return
+    if (requestRef.current || !draftReady || loginOpen) return
+    const invalid = getRunError(questions, state)
+    if (invalid) {
+      setRunError(locale === 'en' ? invalid : feedback.input)
+      return
+    }
 
     if (account.loading) return
     if (!account.canRun) {
@@ -88,14 +101,17 @@ export default function Home() {
       return
     }
 
-    runningRef.current = true
+    const controller = new AbortController()
+    requestRef.current = controller
     setRunning(true)
     setRunError(null)
     try {
-      const record = await classify(ready, state)
+      const record = await classify(questions, state, controller.signal)
+      if (requestRef.current !== controller) return
       account.applyQuota(record.quota)
-      setRuns((r) => [...r, record])
+      setRuns([record])
     } catch (err) {
+      if (controller.signal.aborted || requestRef.current !== controller) return
       if (err instanceof ClassifyError) {
         account.applyQuota(err.quota)
         if (err.code === 'LOGIN_REQUIRED') {
@@ -115,36 +131,45 @@ export default function Home() {
           return
         }
       }
-      setRunError(copy.action.genericError)
+      setRunError(locale === 'en' && err instanceof ClassifyError ? err.message : copy.action.genericError)
     } finally {
-      runningRef.current = false
-      setRunning(false)
+      if (requestRef.current === controller) {
+        requestRef.current = null
+        setRunning(false)
+      }
+      // A sent request may consume server allowance even when the browser cancels it.
+      if (controller.signal.aborted && mounted.current) void account.refresh().catch(() => {})
     }
-  }, [questions, state, account, copy])
+  }, [questions, state, account, copy, draftReady, loginOpen, locale, feedback.input, setRuns])
 
   const handleClear = useCallback(() => {
+    cancelRun()
     setState(DEFAULT_STATE)
     setQuestions([])
     setActivePreset(null)
     setRuns([])
-  }, [])
+  }, [cancelRun, setState, setQuestions, setRuns])
 
   const addQuestionOfType = useCallback((t: PrimitiveType) => {
-    setQuestions((qs) => [...qs, blankQuestion(t)])
+    setQuestions((qs) => qs.length < LIMITS.questions ? [...qs, blankQuestion(t)] : qs)
     setActivePreset(null)
     composerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }, [])
+  }, [setQuestions])
 
   const focusContext = useCallback(() => {
     composerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }, [])
 
-  const handleShare = useCallback(() => {
-    const payload = JSON.stringify({ state, questions }, null, 2)
-    navigator.clipboard?.writeText(payload).catch(() => {})
-    setShared(true)
-    window.setTimeout(() => setShared(false), 1600)
-  }, [state, questions])
+  const handleShare = useCallback(async () => {
+    setShared(false)
+    try {
+      if (!navigator.clipboard) throw new Error('clipboard unavailable')
+      await navigator.clipboard.writeText(JSON.stringify({ state, questions }, null, 2))
+      setShared(true)
+      if (shareTimer.current) clearTimeout(shareTimer.current)
+      shareTimer.current = setTimeout(() => setShared(false), 1600)
+    } catch { setRunError(feedback.copy) }
+  }, [state, questions, feedback.copy])
 
   // Results render below the composer, so bring them into view after a run.
   useEffect(() => {
@@ -155,7 +180,7 @@ export default function Home() {
   // ⌘/Ctrl + Enter → Run
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !document.querySelector('[role="dialog"], [role="alertdialog"]')) {
         e.preventDefault()
         handleRun()
       }
@@ -180,6 +205,7 @@ export default function Home() {
   const dailyExhausted = Boolean(account.user && account.quota?.remaining === 0)
   const disabled =
     running ||
+    !draftReady ||
     pending === 0 ||
     account.loading ||
     !account.quota ||
@@ -204,13 +230,19 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-[#FEFEFE] text-zinc-900 antialiased">
       <Header
         user={account.user}
-        onSignIn={() => setLoginOpen(true)}
-        onSignOut={account.signOut}
+        busy={account.busy || account.loading}
+        onSignIn={() => { setLoginWarning(false); setLoginOpen(true) }}
+        onSignOut={() => { cancelRun(); void account.signOut() }}
         onShare={handleShare}
         shared={shared}
       />
 
       <main className="flex-1">
+        {(storageError || account.actionError) && (
+          <p role="alert" className="mx-auto max-w-[1240px] px-4 pt-4 text-sm text-rose-700 sm:px-8">
+            {storageError ? feedback.storage : locale === 'en' ? account.actionError : feedback.account}
+          </p>
+        )}
         {authError && (
           <div className="mx-auto w-full max-w-[1240px] px-4 pt-5 sm:px-8">
             <div className="flex items-center gap-3 rounded-xl border border-[#f386a1] bg-[#f386a1]/10 px-4 py-3">
@@ -246,19 +278,22 @@ export default function Home() {
           <div
             ref={composerRef}
             className="mt-4 rounded-2xl border border-zinc-900/15 bg-white shadow-[0_1px_2px_rgba(30,30,30,0.04),0_12px_32px_-12px_rgba(30,30,30,0.12)]">
-            <div className="flex flex-col pb-16 lg:flex-row lg:items-stretch">
+            <fieldset disabled={running || !draftReady} className="flex min-w-0 flex-col pb-16 lg:flex-row lg:items-stretch">
               <div className="flex flex-col p-4 sm:p-6 lg:w-1/2 lg:border-r lg:border-zinc-200">
                 <StateEditor value={state} onChange={editState} />
               </div>
               <div className="flex flex-col border-t border-zinc-200 p-4 sm:p-6 lg:w-1/2 lg:border-t-0">
                 <QuestionsEditor questions={questions} onChange={editQuestions} />
               </div>
-            </div>
+            </fieldset>
 
             {/* action bar — sticks to the viewport bottom while the composer is
                 in view, so Run stays reachable however tall the content grows */}
             <div className="sticky bottom-0 z-20 flex flex-col gap-3 rounded-b-2xl border-t border-zinc-200 bg-zinc-50/95 px-4 py-3.5 backdrop-blur sm:flex-row sm:items-center sm:px-6">
-              <p className="flex-1 text-[13px] text-zinc-400 sm:text-[14px]">{allowanceLabel}</p>
+              <div className="flex-1 text-[13px] text-zinc-500 sm:text-[14px]">
+                <p>{allowanceLabel}</p>
+                {!account.loading && !account.quota && <button className="mt-1 underline" onClick={() => { void account.refresh().catch(() => {}) }}>{feedback.retry}</button>}
+              </div>
               <div className="flex items-center gap-2.5">
                 <button
                   onClick={handleClear}
@@ -307,7 +342,7 @@ export default function Home() {
           </div>
 
           {runError && (
-            <div className="mt-4 flex items-start gap-3 rounded-xl border border-[#f386a1] bg-[#f386a1]/10 px-4 py-3">
+            <div role="alert" className="mt-4 flex items-start gap-3 rounded-xl border border-[#f386a1] bg-[#f386a1]/10 px-4 py-3">
               <span className="flex-1 text-[14.5px] leading-relaxed text-zinc-800">{runError}</span>
               <button
                 onClick={() => setRunError(null)}
@@ -338,9 +373,14 @@ export default function Home() {
 
       <LoginDialog
         open={loginOpen}
-        onClose={() => setLoginOpen(false)}
+        onClose={() => { setLoginOpen(false); setLoginWarning(false) }}
+        warning={loginWarning ? feedback.storage : undefined}
+        continueLabel={loginWarning ? feedback.continueUnsaved : undefined}
         onGoogle={() => {
-          setLoginOpen(false)
+          if (!persist() && !loginWarning) {
+            setLoginWarning(true)
+            return
+          }
           account.signInWithGoogle()
         }}
       />

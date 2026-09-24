@@ -1,73 +1,20 @@
-# React + TypeScript + Vite
+# JEV AI Model app
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Use Node.js 24 or later and `npm ci` to install the locked dependencies.
 
-Currently, two official plugins are available:
+- `npm run dev`: Vite UI development, without API routes.
+- `npm run cf:dev`: build static pages and run Cloudflare Pages Functions with local D1.
+- `npm run verify`: production build, Functions type check, lint, Node tests, and DOM interaction tests.
+- `npm run preview`: inspect the production frontend at the URL Vite prints.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Copy `.dev.vars.example` to `.dev.vars` and fill in local credentials for authentication and real classification. The Google callback must be registered for `http://localhost:8788/api/auth/callback`. Run `npm run db:local` before using the local account endpoints. Never commit credentials.
 
-## React Compiler
+Classification calls `/api/classify`, which validates input, reserves server-side allowance, and calls TypeSafe. Shared request and answer checks live in `shared/classification.ts`. Failed or cancelled requests may already have reached the paid upstream, so the client refreshes server allowance after cancellation instead of inventing a refund.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Drafts and the latest result use per-tab session storage. Clear resets persisted work. Authentication status and usage come from the server; stored drafts never grant allowance.
 
-## Expanding the ESLint configuration
+## Content
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Route metadata lives in `src/lib/seo.ts`; blog metadata in `src/lib/blog.ts`; article bodies in `src/pages/Blog.tsx`. The prerender step emits complete HTML, sitemap entries, and canonical redirects from the route registry. Blog content loads in a separate client chunk. `indexable` controls article sitemap inclusion and robots metadata. Research, sources, and review limitations are recorded in `../docs/seo-research.md`.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Run `npm run verify` after content or routing changes. Deployment commands run the same checks before publishing. The CI workflow only verifies; it does not deploy.

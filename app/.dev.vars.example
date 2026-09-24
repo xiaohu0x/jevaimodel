@@ -8,3 +8,6 @@
 #
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
+
+# Keep the OAuth callback on the local browser origin.
+PUBLIC_ORIGIN="http://localhost:8788"

@@ -1,3 +1,4 @@
+import { FEEDBACK } from '@/lib/feedback'
 import { BookOpen, ExternalLink, LogIn, LogOut } from 'lucide-react'
 import { Link } from 'react-router'
 import type { AccountUser } from '@/lib/useAccount'
@@ -7,6 +8,7 @@ import { BrandMark } from '@/sections/Illustrations'
 import LanguageMenu from '@/sections/LanguageMenu'
 
 interface HeaderProps {
+  busy?: boolean
   user: AccountUser | null
   onSignIn: () => void
   onSignOut: () => void
@@ -16,6 +18,7 @@ interface HeaderProps {
 
 export default function Header({
   user,
+  busy = false,
   onSignIn,
   onSignOut,
   onShare,
@@ -63,6 +66,7 @@ export default function Header({
 
           <LanguageMenu />
 
+          <Link to="/blog" className="hidden rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-zinc-500 hover:text-zinc-900 md:inline">{FEEDBACK[locale].blog}</Link>
           <button
             onClick={onShare}
             className="rounded-lg px-3 py-2 text-[14px] font-medium text-zinc-500 transition-colors hover:bg-zinc-900/[0.05] hover:text-zinc-900"
@@ -94,6 +98,7 @@ export default function Header({
               )}
               <button
                 onClick={onSignOut}
+                disabled={busy}
                 title={copy.header.signOut}
                 aria-label={copy.header.signOut}
                 className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-900/[0.05] hover:text-zinc-700"
@@ -104,6 +109,7 @@ export default function Header({
           ) : (
             <button
               onClick={onSignIn}
+              disabled={busy}
               aria-label={copy.header.signIn}
               className="ml-1 flex h-9 items-center justify-center gap-1.5 rounded-lg bg-zinc-900 px-2.5 text-[14px] font-semibold text-[#fafafa] transition-colors hover:bg-zinc-700 sm:px-4"
             >

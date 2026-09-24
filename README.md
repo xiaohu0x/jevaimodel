@@ -159,3 +159,12 @@ or store raw IP addresses.
   image are copied into every production build.
 - `npm run test:seo` rebuilds and checks route HTML, canonical URLs, structured data, sitemap,
   robots directives, social-image dimensions, 404 behavior, and edge redirects.
+
+
+## Verification and content maintenance
+
+Use Node.js 24+ and run `cd app && npm run verify` before release. CI runs the same build, type, lint, API-contract, SEO, and DOM-interaction checks. Deployment commands also require these checks to pass.
+
+Current work survives navigation and OAuth in per-tab session storage; Clear resets the saved draft and latest result. Google authentication and TypeSafe classification continue to use Pages Functions and D1. Loopback development callbacks stay on the local origin.
+
+The English blog lives at `/blog`. Article metadata, indexability, and bodies are in `app/src/lib/blog.ts` and `app/src/pages/Blog.tsx`. The build generates static HTML, sitemap entries, and redirects from route metadata. See `docs/seo-research.md` for the source ledger and editorial review provenance.

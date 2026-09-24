@@ -1,3 +1,4 @@
+import { FEEDBACK } from '@/lib/feedback'
 import { BrandMark } from '@/sections/Illustrations'
 import { Link } from 'react-router'
 import { localeHomePath } from '@/lib/locale'
@@ -49,6 +50,7 @@ export default function Footer() {
 
         <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11.5px] text-zinc-400">
           <span>© {new Date().getFullYear()} JEV AI Model · jevaimodel.app</span>
+          <Link to="/blog" className="transition-colors hover:text-zinc-700">{FEEDBACK[locale].blog}</Link>
           <Link to="/privacy" className="transition-colors hover:text-zinc-700">
             {copy.footer.privacy}
           </Link>

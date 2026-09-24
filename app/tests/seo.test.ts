@@ -143,13 +143,13 @@ test('localized home pages have unique TDH and reciprocal hreflang links', async
       assert.match(
         html,
         new RegExp(
-          `<link rel="alternate" hreflang="${alternate.hrefLang}" href="${absoluteUrl(localeHomePath(alternate.code))}"`,
+          `<link data-seo-alternate="true" rel="alternate" hreflang="${alternate.hrefLang}" href="${absoluteUrl(localeHomePath(alternate.code))}"`,
         ),
       )
     }
     assert.match(
       html,
-      /<link rel="alternate" hreflang="x-default" href="https:\/\/jevaimodel\.app\/"/,
+      /<link data-seo-alternate="true" rel="alternate" hreflang="x-default" href="https:\/\/jevaimodel\.app\/"/,
     )
 
     titles.add(copy.title)
@@ -184,7 +184,9 @@ test('sitemap and robots expose only intentional crawl targets', async () => {
   const robots = await readFile(path.join(projectRoot, 'dist', 'robots.txt'), 'utf8')
 
   for (const pathname of PRERENDER_PATHS) {
-    assert.match(sitemap, new RegExp(`<loc>${absoluteUrl(pathname)}</loc>`))
+    const entry = new RegExp(`<loc>${absoluteUrl(pathname)}</loc>`)
+    if (getPageSeo(pathname).index) assert.match(sitemap, entry)
+    else assert.doesNotMatch(sitemap, entry)
   }
   assert.doesNotMatch(sitemap, /404/)
   assert.match(robots, /Disallow: \/api\//)

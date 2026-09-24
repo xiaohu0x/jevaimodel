@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { BrandMark } from '@/sections/Illustrations'
 
 const NAV_LINKS = [
+  { to: '/blog', label: 'Blog' },
   { to: '/docs', label: 'Docs' },
   { to: '/use-cases', label: 'Use cases' },
   { to: '/examples', label: 'Examples' },
@@ -26,7 +27,7 @@ export default function PublicShell({ eyebrow, title, summary, children }: Publi
           </Link>
           <nav
             aria-label="Primary"
-            className="no-scrollbar ml-auto flex min-w-0 items-center gap-4 overflow-x-auto text-[12.5px] font-medium text-zinc-500"
+            className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-x-3 gap-y-2 text-[12.5px] font-medium text-zinc-500 sm:flex-nowrap sm:gap-4"
           >
             {NAV_LINKS.map((link) => (
               <Link key={link.to} to={link.to} className="shrink-0 transition-colors hover:text-zinc-900">

@@ -1,3 +1,4 @@
+import { BLOG_POSTS, blogPath } from './blog.ts'
 import { LANDING_COPY } from './landing-copy.ts'
 import { LOCALES, UI_COPY, localeHomePath } from './locale.ts'
 
@@ -96,6 +97,45 @@ const localizedHomeSeo = Object.fromEntries(
 ) as Record<string, PageSeo>
 
 const englishPageSeo: Record<string, Omit<PageSeo, 'language' | 'ogLocale'>> = {
+  '/blog': {
+    title: 'AI Classification Guides and Blog | JEV AI Model',
+    description: 'Practical guides to JSON classification contracts, LLM evaluation rubrics, and classifier confidence. Work through examples and build a reviewable decision process.',
+    canonicalPath: '/blog',
+    index: true,
+    imageAlt: 'JEV AI Model classification guides',
+    structuredData: {
+      '@context': 'https://schema.org', '@type': 'Blog', name: 'JEV AI Model Blog',
+      url: `${SITE_ORIGIN}/blog`, inLanguage: 'en',
+      publisher: { '@type': 'Organization', name: 'JEV AI Model', url: `${SITE_ORIGIN}/` },
+    },
+  },
+  ...Object.fromEntries(BLOG_POSTS.map((post) => {
+    const pathname = blogPath(post)
+    return [pathname, {
+      title: `${post.title} | JEV AI Model`, description: post.description,
+      canonicalPath: pathname, index: post.indexable, ogType: 'article' as const,
+      imageAlt: 'JEV AI Model classification guides',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'BlogPosting', headline: post.title, description: post.description,
+            mainEntityOfPage: absoluteUrl(pathname), url: absoluteUrl(pathname), inLanguage: 'en',
+            datePublished: post.date, dateModified: post.date,
+            author: { '@type': 'Organization', name: 'JEV AI Model', url: `${SITE_ORIGIN}/blog#editorial` },
+            publisher: { '@type': 'Organization', name: 'JEV AI Model', url: `${SITE_ORIGIN}/` },
+            isPartOf: { '@type': 'Blog', '@id': `${SITE_ORIGIN}/blog`, url: `${SITE_ORIGIN}/blog` },
+          },
+          {
+            '@type': 'BreadcrumbList', itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Blog', item: `${SITE_ORIGIN}/blog` },
+              { '@type': 'ListItem', position: 2, name: post.title, item: absoluteUrl(pathname) },
+            ],
+          },
+        ],
+      },
+    }]
+  })),
   '/docs': {
     title: 'AI Classifier Documentation | JEV AI Model',
     description:

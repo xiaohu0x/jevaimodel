@@ -1,45 +1,27 @@
-import { X } from 'lucide-react'
+import Modal from '@/components/Modal'
 import { Link } from 'react-router'
 import { useLocale } from '@/lib/useLocale'
-import { BrandMark } from '@/sections/Illustrations'
 
 interface LoginDialogProps {
   open: boolean
   onClose: () => void
   onGoogle: () => void
+  warning?: string
+  continueLabel?: string
 }
 
-export default function LoginDialog({ open, onClose, onGoogle }: LoginDialogProps) {
+export default function LoginDialog({ open, onClose, onGoogle, warning, continueLabel }: LoginDialogProps) {
   const { copy } = useLocale()
-  if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-zinc-950/30" onClick={onClose} />
-      <div className="rise-in relative w-full max-w-[380px] rounded-t-2xl border border-zinc-200 bg-white p-7 shadow-xl shadow-zinc-900/10 sm:rounded-2xl">
-        <button
-          onClick={onClose}
-          aria-label={copy.login.close}
-          className="absolute top-4 right-4 rounded-md p-1 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
-        >
-          <X className="h-4 w-4" strokeWidth={2} />
-        </button>
-
-        <BrandMark className="h-9 w-9" />
-
-        <h2 className="mt-4 font-display text-[22px] leading-snug font-medium text-zinc-900">
-          {copy.login.title}
-        </h2>
-        <p className="mt-1.5 text-[12.5px] leading-relaxed text-zinc-500">
-          {copy.login.body}
-        </p>
-
+    <Modal open={open} onClose={onClose} title={copy.login.title} description={copy.login.body} closeLabel={copy.login.close}>
+        {warning && <p role="alert" className="mt-4 text-sm leading-relaxed text-rose-700">{warning}</p>}
         <button
           onClick={onGoogle}
           className="mt-6 flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-zinc-300 bg-white text-[13.5px] font-semibold text-zinc-800 transition-colors hover:border-zinc-400 hover:bg-zinc-50"
         >
           <GoogleG className="h-[18px] w-[18px]" />
-          {copy.login.google}
+          {continueLabel ?? copy.login.google}
         </button>
 
         <p className="mt-4 text-center text-[11px] leading-relaxed text-zinc-400">
@@ -57,8 +39,7 @@ export default function LoginDialog({ open, onClose, onGoogle }: LoginDialogProp
           </Link>
           .
         </p>
-      </div>
-    </div>
+    </Modal>
   )
 }
 

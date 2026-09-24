@@ -1,3 +1,4 @@
+import { LIMITS } from '../../shared/classification'
 import { useState } from 'react'
 import { GripVertical, Plus, X } from 'lucide-react'
 import {
@@ -18,7 +19,7 @@ interface QuestionsEditorProps {
 
 export default function QuestionsEditor({ questions, onChange }: QuestionsEditorProps) {
   const { copy } = useLocale()
-  const addQuestion = (type: PrimitiveType) => onChange([...questions, blankQuestion(type)])
+  const addQuestion = (type: PrimitiveType) => { if (questions.length < LIMITS.questions) onChange([...questions, blankQuestion(type)]) }
 
   const update = (id: string, patch: Partial<Question>) =>
     onChange(questions.map((q) => (q.id === id ? { ...q, ...patch } : q)))
@@ -34,7 +35,7 @@ export default function QuestionsEditor({ questions, onChange }: QuestionsEditor
         <span className="hidden text-[14px] text-zinc-400 sm:inline">
           {copy.editor.questionsHint}
         </span>
-        {questions.length > 0 && (
+        {questions.length > 0 && questions.length < LIMITS.questions && (
           <div className="ml-auto">
             <AddQuestionMenu onAdd={addQuestion} />
           </div>
@@ -85,7 +86,7 @@ function AddQuestionMenu({ onAdd }: { onAdd: (t: PrimitiveType) => void }) {
       {open && (
         <>
           <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-40 mt-2 w-[330px] overflow-hidden rounded-2xl border border-zinc-300 bg-white p-2 shadow-xl shadow-zinc-900/10">
+          <div className="absolute right-0 z-40 mt-2 w-[min(330px,calc(100vw-3rem))] overflow-hidden rounded-2xl border border-zinc-300 bg-white p-2 shadow-xl shadow-zinc-900/10">
             <div className="flex items-center gap-2 px-2.5 pt-1.5 pb-2.5">
               <span className="font-mono text-[10.5px] font-medium tracking-[0.12em] text-zinc-400 uppercase">
                 {copy.editor.selectType}
@@ -171,6 +172,7 @@ function QuestionCard({ question: q, onUpdate, onRemove, onChangeType }: Questio
 
       <input
         value={q.instructions}
+        maxLength={LIMITS.instructions}
         onChange={(e) => onUpdate({ instructions: e.target.value })}
         aria-label={copy.editor.instructions}
         placeholder={copy.primitives[q.type].example}
@@ -210,6 +212,7 @@ function LevelsEditor({ q, onUpdate }: { q: Question; onUpdate: (p: Partial<Ques
             </span>
             <input
               value={level}
+              maxLength={LIMITS.description}
               onChange={(e) =>
                 onUpdate({ levels: levels.map((l, j) => (i === j ? e.target.value : l)) })
               }
@@ -236,7 +239,7 @@ function LevelsEditor({ q, onUpdate }: { q: Question; onUpdate: (p: Partial<Ques
         ))}
       </div>
 
-      {levels.length < 8 && (
+      {levels.length < LIMITS.criteria && (
         <button
           onClick={() => onUpdate({ levels: [...levels, ''] })}
           className="mt-2 pl-7 text-[12.5px] font-medium text-zinc-400 hover:text-zinc-900"
@@ -274,6 +277,7 @@ function OptionsEditor({ q, onUpdate }: { q: Question; onUpdate: (p: Partial<Que
             <div className="min-w-0 flex-1 space-y-1.5">
               <input
                 value={opt.key}
+                maxLength={LIMITS.key}
                 onChange={(e) => set(i, { key: e.target.value })}
                 aria-label={`${copy.editor.optionName} ${i + 1}`}
                 placeholder="billing"
@@ -281,6 +285,7 @@ function OptionsEditor({ q, onUpdate }: { q: Question; onUpdate: (p: Partial<Que
               />
               <input
                 value={opt.description}
+                maxLength={LIMITS.description}
                 onChange={(e) => set(i, { description: e.target.value })}
                 aria-label={`Option ${i + 1} description`}
                 placeholder={copy.editor.optionDescription}
@@ -300,7 +305,7 @@ function OptionsEditor({ q, onUpdate }: { q: Question; onUpdate: (p: Partial<Que
         ))}
       </div>
 
-      {options.length < 8 && (
+      {options.length < LIMITS.criteria && (
         <button
           onClick={() => onUpdate({ options: [...options, { key: '', description: '' }] })}
           className="mt-2 pl-6 text-[12.5px] font-medium text-zinc-400 hover:text-zinc-900"

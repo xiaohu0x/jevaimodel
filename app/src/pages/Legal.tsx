@@ -1,5 +1,6 @@
+import Modal from '@/components/Modal'
 import { useState, type ReactNode } from 'react'
-import { ArrowLeft, ShieldCheck, Trash2, X } from 'lucide-react'
+import { ArrowLeft, ShieldCheck, Trash2 } from 'lucide-react'
 import { Link } from 'react-router'
 import { useAccount } from '@/lib/useAccount'
 import { BrandMark } from '@/sections/Illustrations'
@@ -146,6 +147,10 @@ export function PrivacyPage() {
         </p>
       </Section>
 
+      <Section title="Browser drafts">
+        <p>Your current context, questions, and latest result are saved in this tab’s session storage so they survive sign-in and page navigation. Clear removes the saved work; closing the tab normally ends the browser session. Browser session restore features may retain it.</p>
+      </Section>
+
       <Section title="Storage, providers, and retention">
         <p>
           The site and account database run on Cloudflare. Google provides sign-in, web fonts, and
@@ -188,11 +193,11 @@ export function PrivacyPage() {
               </button>
             </div>
           ) : (
-            <p className="text-zinc-400">You are not currently signed in.</p>
+            <div><p className="text-zinc-500">You are not currently signed in.</p><button onClick={account.signInWithGoogle} className="mt-2 underline">Sign in with Google</button></div>
           )}
           {deleteError && (
             <p className="mt-2 text-[12px] text-red-700">
-              Account deletion failed. Please reload the page and try again.
+              {account.actionError ?? 'Account deletion failed. Please try again.'}
             </p>
           )}
         </div>
@@ -213,36 +218,9 @@ export function PrivacyPage() {
         </p>
       </Section>
 
-      {confirming && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="presentation">
-          <button
-            type="button"
-            className="absolute inset-0 bg-zinc-950/35"
-            aria-label="Cancel account deletion"
-            onClick={() => !deleting && setConfirming(false)}
-          />
-          <div
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="delete-account-title"
-            className="relative w-full max-w-[400px] rounded-lg border border-zinc-200 bg-white p-6 shadow-xl"
-          >
-            <button
-              type="button"
-              onClick={() => setConfirming(false)}
-              disabled={deleting}
-              className="absolute top-4 right-4 p-1 text-zinc-400 hover:text-zinc-700"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" aria-hidden />
-            </button>
-            <h2 id="delete-account-title" className="text-[17px] font-semibold">
-              Delete your account?
-            </h2>
-            <p className="mt-2 text-[13px] leading-6 text-zinc-600">
-              This permanently removes your Google profile information and all JEV AI Model
-              sessions. This action cannot be undone.
-            </p>
+      <Modal open={confirming} onClose={() => setConfirming(false)} role="alertdialog" busy={deleting}
+        title="Delete your account?"
+        description="This permanently removes your Google profile information, usage records, and all JEV AI Model sessions. This action cannot be undone.">
             <div className="mt-6 flex justify-end gap-2">
               <button
                 type="button"
@@ -261,9 +239,7 @@ export function PrivacyPage() {
                 {deleting ? 'Deleting…' : 'Delete permanently'}
               </button>
             </div>
-          </div>
-        </div>
-      )}
+      </Modal>
     </LegalShell>
   )
 }

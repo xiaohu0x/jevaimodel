@@ -7,6 +7,7 @@
  */
 
 import type { QuotaSnapshot } from '@/lib/useAccount'
+import { LIMITS, validAnswers, validateRequest, type ApiQuestion } from '../../shared/classification.ts'
 
 export type PrimitiveType = 'noul' | 'score' | 'choice'
 
@@ -317,8 +318,8 @@ export function parseState(state: string): unknown {
 }
 
 /** Shapes one question the way the API expects it under `questions[id]`. */
-export function toApiQuestion(q: Question): Record<string, unknown> {
-  const base: Record<string, unknown> = {
+export function toApiQuestion(q: Question): ApiQuestion {
+  const base: ApiQuestion = {
     type: q.type,
     instructions: q.instructions.trim(),
   }
@@ -336,19 +337,43 @@ export function toApiQuestion(q: Question): Record<string, unknown> {
 
 /** True when a question carries everything the API needs. */
 export function isQuestionReady(q: Question): boolean {
-  if (!q.instructions.trim()) return false
-  if (q.type === 'choice') return (q.options ?? []).filter((o) => o.key.trim()).length >= 2
-  if (q.type === 'score') return (q.levels ?? []).filter((l) => l.trim()).length >= 2
-  return true
+  if (!q.instructions.trim() || q.instructions.length > LIMITS.instructions) return false
+  if (q.type === 'choice') {
+    const options = q.options ?? []
+    return options.length >= 2 && options.length <= LIMITS.criteria
+      && options.every((option) => option.key.trim() && option.key.trim().length <= LIMITS.key && option.description.length <= LIMITS.description)
+      && new Set(options.map((option) => option.key.trim())).size === options.length
+  }
+  if (q.type === 'score') {
+    const levels = q.levels ?? []
+    return levels.length >= 2 && levels.length <= LIMITS.criteria
+      && levels.every((level) => level.trim() && level.length <= LIMITS.description)
+  }
+  return q.type === 'noul'
+}
+
+export function getRunError(questions: Question[], state: string): string | null {
+  const trimmed = state.trim()
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try { JSON.parse(trimmed) } catch { return 'Fix the invalid JSON before running.' }
+  }
+  if (!questions.length || questions.length > LIMITS.questions) return `Use between 1 and ${LIMITS.questions} questions.`
+  if (new Set(questions.map((question) => question.id)).size !== questions.length) return 'Question ids must be unique.'
+  if (!questions.every(isQuestionReady)) return 'Complete every question, use unique option names, and fill in every score level.'
+  const result = validateRequest({ state: parseState(state), questions: Object.fromEntries(questions.map((question) => [question.id, toApiQuestion(question)])) })
+  return result.ok ? null : result.error
 }
 
 /* ------------------------------------------------------------------ */
 /*  The real call                                                      */
 /* ------------------------------------------------------------------ */
 
-export async function classify(questions: Question[], state: string): Promise<RunRecord> {
-  const ready = questions.filter(isQuestionReady)
-  if (!ready.length) throw new ClassifyError('Add a question first.')
+export async function classify(questions: Question[], state: string, signal?: AbortSignal): Promise<RunRecord> {
+  const error = getRunError(questions, state)
+  if (error) throw new ClassifyError(error, 'INVALID_INPUT')
+  signal?.throwIfAborted()
+  const ready = structuredClone(questions)
+  const apiQuestions = Object.fromEntries(ready.map((q) => [q.id, toApiQuestion(q)])) as Record<string, ApiQuestion>
 
   const startedAt = Date.now()
 
@@ -358,12 +383,14 @@ export async function classify(questions: Question[], state: string): Promise<Ru
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(35_000)]) : AbortSignal.timeout(35_000),
       body: JSON.stringify({
         state: parseState(state),
-        questions: Object.fromEntries(ready.map((q) => [q.id, toApiQuestion(q)])),
+        questions: apiQuestions,
       }),
     })
   } catch {
+    signal?.throwIfAborted()
     throw new ClassifyError('Could not reach the classifier. Check your connection.')
   }
 
@@ -379,30 +406,32 @@ export async function classify(questions: Question[], state: string): Promise<Ru
   try {
     payload = await res.json()
   } catch {
+    signal?.throwIfAborted()
     throw new ClassifyError('The classifier returned an unreadable response.')
   }
 
   if (!res.ok) {
     throw new ClassifyError(
-      payload.error || 'The classifier could not answer that.',
-      payload.code,
-      payload.quota,
+      (typeof payload?.error === 'string' && payload.error) || 'The classifier could not answer that.',
+      payload?.code,
+      payload?.quota,
     )
   }
 
-  const answers = payload.answers ?? {}
+  signal?.throwIfAborted()
+  if (!validAnswers(apiQuestions, payload?.answers)) throw new ClassifyError('The classifier returned incomplete or invalid answers. Please try again.', 'UPSTREAM_INVALID_RESPONSE', payload?.quota)
+  const answers = payload.answers!
   const results: ClassificationResult[] = ready
-    .filter((q) => answers[q.id])
     .map((q) => ({ questionId: q.id, question: q, answer: answers[q.id] }))
 
   if (!results.length) throw new ClassifyError('The classifier returned no answers.')
 
   return {
-    id: `run_${startedAt.toString(36)}`,
+    id: `run_${crypto.randomUUID()}`,
     startedAt,
     state,
     results,
-    model: payload.model ?? 'jev',
+    model: typeof payload.model === 'string' ? payload.model : 'jev',
     totalLatencyMs: payload.latencyMs ?? Date.now() - startedAt,
     usage: payload.usage,
     quota: payload.quota,

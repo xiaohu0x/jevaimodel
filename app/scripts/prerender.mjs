@@ -36,7 +36,7 @@ function renderSeoHead(seo, pathname) {
   const alternates = (seo.alternates ?? [])
     .map(
       ({ hrefLang, href }) =>
-        `\n    <link rel="alternate" hreflang="${escapeHtml(hrefLang)}" href="${escapeHtml(href)}" />`,
+        `\n    <link data-seo-alternate="true" rel="alternate" hreflang="${escapeHtml(hrefLang)}" href="${escapeHtml(href)}" />`,
     )
     .join('')
 
@@ -66,9 +66,9 @@ function renderSeoHead(seo, pathname) {
     <!-- seo-head-end -->`
 }
 
-function buildPage(pathname) {
+async function buildPage(pathname) {
   const seo = getPageSeo(pathname)
-  const app = render(pathname)
+  const app = await render(pathname)
   const withHead = template.replace(
     /<!-- seo-head-start -->[\s\S]*?<!-- seo-head-end -->/,
     renderSeoHead(seo, pathname),
@@ -93,7 +93,18 @@ const outputs = [
 for (const { pathname, filename } of outputs) {
   const output = path.join(dist, filename)
   await mkdir(path.dirname(output), { recursive: true })
-  await writeFile(output, buildPage(pathname))
+  await writeFile(output, await buildPage(pathname))
 }
 
 console.log(`Prerendered ${outputs.length} routes`)
+
+// Generate crawl targets from the same registry as the HTML routes.
+const indexablePaths = PRERENDER_PATHS.filter((pathname) => getPageSeo(pathname).index)
+const sitemapRows = indexablePaths.map((pathname) => {
+  const seo = getPageSeo(pathname)
+  const alternates = (seo.alternates ?? []).map(({ hrefLang, href }) =>
+    `    <xhtml:link rel="alternate" hreflang="${escapeHtml(hrefLang)}" href="${escapeHtml(href)}" />`).join('\n')
+  return `  <url>\n    <loc>${absoluteUrl(pathname)}</loc>${alternates ? `\n${alternates}` : ''}\n  </url>`
+}).join('\n')
+await writeFile(path.join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${sitemapRows}\n</urlset>\n`)
+await writeFile(path.join(dist, '_redirects'), PRERENDER_PATHS.filter((pathname) => pathname !== '/').map((pathname) => `${pathname}/ ${pathname} 301`).join('\n') + '\n')

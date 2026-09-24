@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import Modal from '@/components/Modal'
 
 const SECTIONS = [
   {
@@ -31,19 +31,7 @@ interface DocsDialogProps {
 export default function DocsDialog({ open, onClose }: DocsDialogProps) {
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-zinc-950/30" onClick={onClose} />
-      <div className="rise-in relative max-h-[85vh] w-full max-w-[440px] overflow-y-auto rounded-t-2xl border border-zinc-200 bg-white p-6 shadow-xl shadow-zinc-900/10 sm:rounded-2xl sm:p-7">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 rounded-md p-1 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
-        >
-          <X className="h-4 w-4" strokeWidth={2} />
-        </button>
-
-        <h2 className="font-display text-[20px] leading-snug font-medium text-zinc-900">
-          How JEV AI Model works
-        </h2>
+    <Modal open={open} onClose={onClose} title="How JEV AI Model works" description="Define context and choose the shape of the answer you need.">
         <div className="mt-5 space-y-5">
           {SECTIONS.map((s, i) => (
             <div key={s.title} className="flex gap-3">
@@ -57,7 +45,6 @@ export default function DocsDialog({ open, onClose }: DocsDialogProps) {
             </div>
           ))}
         </div>
-      </div>
-    </div>
+    </Modal>
   )
 }

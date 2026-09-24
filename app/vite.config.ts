@@ -1,13 +1,11 @@
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
-import { inspectAttr } from 'kimi-plugin-inspect-react'
 
 // https://vite.dev/config/
-export default defineConfig(({ command }) => ({
+export default defineConfig({
   base: '/',
-  // Source-location attributes are useful locally but should never ship to production.
-  plugins: [...(command === 'serve' ? [inspectAttr()] : []), react()],
+  plugins: [react()],
   server: {
     port: 3000,
   },
@@ -16,4 +14,4 @@ export default defineConfig(({ command }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-}))
+})

@@ -186,3 +186,21 @@ input[type='number'] {
 .pulse-soft {
   animation: pulse-soft 1.4s ease-in-out infinite;
 }
+/* Editorial pages: keep code and tables usable on narrow screens. */
+.article-copy { overflow-wrap: anywhere; font-size: 15px; line-height: 1.85; color: #52525b; }
+.article-copy h2 { margin: 2.5rem 0 1rem; font-family: 'Host Grotesk', sans-serif; font-size: 1.6rem; line-height: 1.3; color: #18181b; font-weight: 500; }
+.article-copy p, .article-copy ul, .article-copy figure { margin: 1.1rem 0; }
+.article-copy a { color: #067a71; text-decoration: underline; text-underline-offset: 3px; }
+.article-copy ul { padding-left: 1.3rem; list-style: disc; }
+.article-copy li { margin: .55rem 0; }
+.article-copy code { font-family: 'JetBrains Mono', monospace; font-size: .85em; }
+.article-copy pre { max-width: 100%; overflow-x: auto; border: 1px solid #e4e4e7; border-radius: .75rem; background: #fafafa; padding: 1rem; line-height: 1.7; white-space: pre; }
+.article-copy .table-scroll { width: 100%; overflow-x: auto; margin: 1.5rem 0; }
+.article-copy table { width: 100%; min-width: 480px; border-collapse: collapse; font-size: .9em; }
+.article-copy th, .article-copy td { padding: .8rem; border: 1px solid #e4e4e7; text-align: left; vertical-align: top; }
+.article-copy th { background: #fafafa; color: #18181b; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+.article-copy :not(pre) > code { padding: .1em .25em; border-radius: .25rem; background: #f4f4f5; }
